@@ -1,1 +1,1237 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+  <title>기도일지 Firestore</title>
+  <style>
+    :root{
+      --bg:#f7f4ef;--card:#fff;--ink:#1f2933;--sub:#6b7280;--line:#e7ded3;
+      --accent:#7c5c3b;--soft:#f1e7dc;--green:#15803d;--red:#b91c1c;--blue:#2563eb;
+      --shadow:0 4px 14px rgba(0,0,0,.06);--radius:16px;
+    }
+    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+    html{font-size:15px}
+    body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans-serif;padding-bottom:58px;line-height:1.35}
+    header{position:sticky;top:0;z-index:30;background:rgba(247,244,239,.96);backdrop-filter:blur(10px);border-bottom:1px solid rgba(0,0,0,.06)}
+    .header-inner{padding:7px 10px 6px}
+    .title-row{display:flex;align-items:center;justify-content:space-between;gap:8px}
+    h1{margin:0;font-size:1.08rem;letter-spacing:-.04em}
+    .today-text{margin-top:1px;font-size:.74rem;color:var(--sub)}
+    .top-actions{display:flex;align-items:center;gap:5px}
+    .top-btn{border:0;background:var(--soft);color:var(--accent);border-radius:999px;padding:6px 8px;font-weight:950;font-size:.72rem;white-space:nowrap;box-shadow:none}
+    .top-btn.white{background:#fff;box-shadow:var(--shadow)}
+    .top-btn.gpt{background:#111827;color:#fff}
+    .sync-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#f59e0b;margin-right:4px}
+    .sync-dot.ok{background:#16a34a}.sync-dot.bad{background:#dc2626}
+    main{padding:8px;max-width:920px;margin:0 auto}
+    .page{display:none}.page.active{display:block}
+    .stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;margin-bottom:8px}
+    .stat{background:#fff;border-radius:13px;padding:7px 1px;text-align:center;box-shadow:var(--shadow);min-width:0}
+    .stat b{display:block;font-size:.98rem;color:var(--accent);line-height:1.05}.stat span{display:block;margin-top:2px;font-size:.6rem;color:var(--sub);font-weight:900;white-space:nowrap}
+    .card{background:var(--card);border-radius:var(--radius);padding:11px;margin-bottom:9px;box-shadow:var(--shadow);border:1px solid rgba(0,0,0,.04)}
+    .section-title{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
+    .section-title h2{margin:0;font-size:1.08rem;letter-spacing:-.05em}
+    .info-btn{border:0;width:28px;height:28px;border-radius:50%;background:#f2e8dc;color:var(--accent);font-size:.82rem;font-weight:950;flex:0 0 auto}
+    label{display:block;margin:9px 0 4px;font-size:.78rem;font-weight:950}
+    input,select,textarea{width:100%;min-height:40px;border:1px solid var(--line);border-radius:12px;padding:9px 10px;background:#fff;color:var(--ink);font-size:.9rem;outline:none}
+    textarea{min-height:92px;resize:vertical}
+    .hidden-date{position:fixed;left:-9999px;width:1px;height:1px;opacity:0}
+    .compact-row{display:grid;grid-template-columns:64px 1fr;gap:7px;align-items:center;margin:7px 0}
+    .compact-label{font-size:.8rem;font-weight:950;white-space:nowrap}
+    .date-row{display:grid;grid-template-columns:1fr 40px;gap:5px}
+    .date-display{min-height:40px;border:1px solid var(--line);border-radius:12px;background:#fff;padding:9px 10px;font-size:.9rem;font-weight:900;color:var(--ink);text-align:left}
+    .date-icon{border:0;min-height:40px;border-radius:12px;background:var(--accent);color:white;font-size:1rem;font-weight:900}
+    .seg{display:grid;grid-template-columns:repeat(2,1fr);gap:4px;background:#f3ede5;border-radius:999px;padding:3px}
+    .seg button{border:0;border-radius:999px;background:transparent;padding:7px 2px;font-size:.78rem;font-weight:950;color:#6b4e32}
+    .seg button.active{background:var(--accent);color:#fff}
+    .chip-wrap,.chips{display:flex;gap:5px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}.chip-wrap::-webkit-scrollbar,.chips::-webkit-scrollbar{display:none}
+    .mini-chip,.chip{border:1px solid #eadfd4;background:#fbf8f4;color:#6b4e32;border-radius:999px;padding:7px 9px;font-size:.75rem;font-weight:950;white-space:nowrap}
+    .chip{background:#efe7de;border:0}.mini-chip.active{background:var(--accent);color:white;border-color:var(--accent)}
+    .status-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px}.status-grid .mini-chip{padding:7px 1px;font-size:.7rem;text-align:center}
+    .mode-note{display:none;margin-top:6px;padding:8px 9px;border-radius:12px;background:#fff7ed;color:#9a3412;font-size:.74rem;font-weight:800}
+    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+    .btn{width:100%;min-height:43px;border:0;border-radius:13px;padding:10px 12px;background:var(--accent);color:#fff;font-size:.88rem;font-weight:950;box-shadow:0 5px 12px rgba(124,92,59,.18)}
+    .btn.secondary{background:#efe7de;color:#6b4e32;box-shadow:none}.btn.green{background:var(--green)}.btn.red{background:var(--red)}.btn.blue{background:var(--blue)}
+    .btn.small{min-height:34px;padding:7px 8px;font-size:.74rem;border-radius:11px}
+    .button-row{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:10px}.button-row.four{grid-template-columns:repeat(2,1fr)}
+    .notice{background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;padding:9px;border-radius:12px;font-size:.76rem;margin-bottom:8px}
+    .entry{background:#fff;border:1px solid var(--line);border-radius:14px;padding:10px;margin-bottom:8px;box-shadow:0 3px 10px rgba(0,0,0,.04)}
+    .entry-top{display:flex;justify-content:space-between;gap:8px;margin-bottom:6px}.entry-date{font-size:.68rem;color:var(--sub);font-weight:800}
+    .entry-title{margin:2px 0 4px;font-size:.92rem;font-weight:950}.entry-content{font-size:.82rem;white-space:pre-wrap}
+    .entry-tags{margin-top:7px;font-size:.7rem;color:var(--sub);font-weight:800}
+    .badge{border-radius:999px;padding:4px 7px;font-size:.66rem;font-weight:950;white-space:nowrap;background:#f3f4f6;color:#374151}
+    .badge.pray{background:#dbeafe;color:#1d4ed8}.badge.answer{background:#dcfce7;color:#166534}.badge.hold{background:#fef3c7;color:#92400e}.badge.end{background:#fee2e2;color:#991b1b}
+    .empty{background:#fff;border:1px dashed var(--line);border-radius:14px;padding:18px 8px;text-align:center;color:var(--sub);font-size:.82rem}
+    .partial-list,.update-list{display:grid;gap:7px;margin-top:10px}.partial-item,.update-item{background:#f8f4ef;border-radius:12px;padding:9px 10px;font-size:.82rem}
+    .partial-date,.update-title{font-weight:950;color:var(--accent);margin-bottom:4px}.partial-content,.update-content{white-space:pre-wrap}
+    .comment-actions{display:flex;justify-content:flex-end;gap:6px;margin-top:6px;flex-wrap:wrap}
+    .tiny-btn{border:0;border-radius:999px;background:#efe7de;color:#6b4e32;font-size:.68rem;font-weight:950;padding:5px 8px}.tiny-btn.red{background:#fee2e2;color:#991b1b}
+    .update-current{background:#f8f4ef;border-radius:13px;padding:10px;margin-bottom:10px;font-size:.82rem}.update-current b{color:var(--accent)}
+    .update-status{display:inline-flex;border-radius:999px;padding:3px 7px;font-size:.66rem;font-weight:950;background:#efe7de;color:#6b4e32;margin-left:4px}
+    .bottom-nav{position:fixed;left:0;right:0;bottom:0;z-index:50;background:rgba(255,255,255,.98);border-top:1px solid rgba(0,0,0,.08);padding:2px 4px}
+    .bottom-nav-inner{display:grid;grid-template-columns:repeat(6,1fr);gap:2px;max-width:760px;margin:0 auto}.nav-btn{border:0;background:transparent;color:#6b7280;font-size:.54rem;font-weight:950;padding:4px 1px;border-radius:10px;min-height:42px}
+    .nav-btn b{display:block;font-size:.9rem;line-height:1;margin-bottom:1px}.nav-btn.active{background:#efe7de;color:var(--accent)}
+    .modal-bg{display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.45);padding:16px;align-items:center;justify-content:center}.modal-bg.show{display:flex}
+    .modal{width:100%;max-width:460px;max-height:82vh;overflow-y:auto;background:#fff;border-radius:18px;padding:15px;box-shadow:0 18px 50px rgba(0,0,0,.22)}
+    .modal h3{margin:0 0 9px;font-size:1.05rem}.modal-text{font-size:.86rem;white-space:pre-wrap}.help-list{display:grid;gap:7px;font-size:.82rem}.help-item{background:#f8f4ef;border-radius:12px;padding:8px 9px}.help-item b{color:var(--accent)}
+    .toast{position:fixed;left:50%;bottom:56px;transform:translateX(-50%);z-index:300;display:none;max-width:calc(100vw - 24px);background:rgba(31,41,51,.94);color:#fff;padding:9px 12px;border-radius:999px;text-align:center;font-size:.78rem}
+    @media(min-width:920px){main{display:grid;grid-template-columns:1fr;max-width:920px}.card{padding:14px}.bottom-nav-inner{max-width:920px}.button-row.four{grid-template-columns:repeat(4,1fr)}}
+    @media(max-width:380px){html{font-size:14px}main{padding:6px}.card{padding:10px}.compact-row{grid-template-columns:58px 1fr}.stat span{font-size:.56rem}.top-btn{font-size:.66rem;padding:6px 7px}}
+  </style>
+</head>
 
+<body>
+<header>
+  <div class="header-inner">
+    <div class="title-row">
+      <div>
+        <h1>기도일지</h1>
+        <div class="today-text" id="todayText"></div>
+      </div>
+      <div class="top-actions">
+        <button class="top-btn white" onclick="openUpdateCenter()">📦 업데이트</button>
+        <button class="top-btn gpt" onclick="openGPT()" title="Ctrl+G">🤖 GPT</button>
+        <button class="top-btn" onclick="openHelp()">❔ 도움말</button>
+      </div>
+    </div>
+    <div class="today-text" id="syncStatus"><span class="sync-dot"></span>Firestore 연결 준비 중</div>
+  </div>
+</header>
+
+<main>
+  <section id="page-write" class="page active">
+    <div class="stats" id="statsBox">
+      <div class="stat"><b>0</b><span>오늘</span></div><div class="stat"><b>0</b><span>기도중</span></div><div class="stat"><b>0</b><span>응답됨</span></div><div class="stat"><b>0</b><span>감사</span></div>
+    </div>
+    <div class="card">
+      <div class="section-title">
+        <h2>오늘의 기도 기록</h2>
+        <button class="info-btn" onclick="openInfo('오늘의 기도 기록','GitHub index.html과 Firestore가 실시간으로 동기화됩니다. 저장하면 같은 Firebase 프로젝트를 보는 다른 기기에도 곧 반영됩니다.')">ⓘ</button>
+      </div>
+
+      <input type="hidden" id="mode" value="간구"><input type="hidden" id="category" value="기도제목"><input type="hidden" id="status" value="기도중"><input type="hidden" id="importance" value="보통">
+      <input class="hidden-date" type="date" id="entryDate" onchange="updateDateDisplay('entryDate','dateDisplay')">
+
+      <div class="compact-row"><div class="compact-label">날짜</div><div class="date-row"><button type="button" class="date-display" id="dateDisplay" onclick="openDatePicker('entryDate')"></button><button type="button" class="date-icon" onclick="openDatePicker('entryDate')">📅</button></div></div>
+      <div class="compact-row"><div class="compact-label">기도모드</div><div class="seg"><button class="active" data-group="mode" data-value="간구" onclick="setChoice('mode','간구')">🙏 간구</button><button data-group="mode" data-value="감사" onclick="setChoice('mode','감사')">🙌 감사</button></div></div>
+      <div class="mode-note" id="modeNote">감사모드는 자동으로 완료 처리됩니다.</div>
+
+      <label>카테고리</label>
+      <div class="chip-wrap">
+        <button class="mini-chip active" data-group="category" data-value="기도제목" onclick="setChoice('category','기도제목')">기도</button>
+        <button class="mini-chip" data-group="category" data-value="감사" onclick="setChoice('category','감사')">감사</button>
+        <button class="mini-chip" data-group="category" data-value="말씀묵상" onclick="setChoice('category','말씀묵상')">말씀</button>
+        <button class="mini-chip" data-group="category" data-value="중보기도" onclick="setChoice('category','중보기도')">중보</button>
+        <button class="mini-chip" data-group="category" data-value="응답기록" onclick="setChoice('category','응답기록')">응답</button>
+        <button class="mini-chip" data-group="category" data-value="가족" onclick="setChoice('category','가족')">가족</button>
+        <button class="mini-chip" data-group="category" data-value="사역/교회" onclick="setChoice('category','사역/교회')">사역</button>
+        <button class="mini-chip" data-group="category" data-value="건강" onclick="setChoice('category','건강')">건강</button>
+        <button class="mini-chip" data-group="category" data-value="기타" onclick="setChoice('category','기타')">기타</button>
+      </div>
+
+      <div id="statusBox">
+        <label>상태</label>
+        <div class="status-grid">
+          <button class="mini-chip active" data-group="status" data-value="기도중" onclick="setChoice('status','기도중')">기도중</button>
+          <button class="mini-chip" data-group="status" data-value="보류" onclick="setChoice('status','보류')">보류</button>
+          <button class="mini-chip" data-group="status" data-value="응답됨" onclick="setChoice('status','응답됨')">응답됨</button>
+          <button class="mini-chip" data-group="status" data-value="종료" onclick="setChoice('status','종료')">종료</button>
+        </div>
+      </div>
+
+      <label for="title">제목</label><input id="title" placeholder="예: 가족을 위한 기도">
+      <label for="content">내용</label><textarea id="content" placeholder="오늘의 기도와 마음을 적어보세요."></textarea>
+      <div class="grid-2">
+        <div><label for="tags">태그</label><input id="tags" placeholder="자녀, 건강, 교회"></div>
+        <div><label>중요도</label><div class="seg"><button class="active" data-group="importance" data-value="보통" onclick="setChoice('importance','보통')">보통</button><button data-group="importance" data-value="중요" onclick="setChoice('importance','중요')">중요</button></div></div>
+      </div>
+      <div id="responseFields" style="display:none"><label for="responseDate">응답일</label><input type="date" id="responseDate"><label for="responseContent">응답내용</label><textarea id="responseContent" placeholder="어떻게 응답되었는지 기록해보세요."></textarea></div>
+      <div class="button-row"><button class="btn" onclick="savePrayerFast()">저장하기</button><button class="btn secondary" onclick="clearForm()">입력 비우기</button></div>
+    </div>
+  </section>
+
+  <section id="page-open" class="page"><div class="card"><div class="section-title"><h2>기도중</h2><button class="info-btn" onclick="openInfo('기도중','진행 중인 기도제목입니다. 부분응답을 댓글처럼 기록하고, 기도제목 자체도 수정할 수 있습니다.')">ⓘ</button></div><button class="btn secondary small" onclick="loadOpenPrayers(true)">새로고침</button></div><div id="openList"></div></section>
+  <section id="page-today" class="page"><div class="card"><div class="section-title"><h2>오늘의 기록</h2><button class="info-btn" onclick="openInfo('오늘의 기록','오늘 저장한 기도와 감사를 확인합니다.')">ⓘ</button></div><button class="btn secondary small" onclick="loadToday(true)">새로고침</button></div><div id="todayList"></div></section>
+
+  <section id="page-past" class="page">
+    <div class="card">
+      <div class="section-title"><h2>과거의 나 다시 보기</h2><button class="info-btn" onclick="openInfo('과거의 나 다시 보기','1주 전, 1개월 전, 1년 전처럼 과거의 기도와 감사를 다시 확인합니다.')">ⓘ</button></div>
+      <div class="chips"><button class="chip" onclick="quickPast(1,'day')">어제</button><button class="chip" onclick="quickPast(1,'week')">1주 전</button><button class="chip" onclick="quickPast(2,'week')">2주 전</button><button class="chip" onclick="quickPast(1,'month')">1개월 전</button><button class="chip" onclick="quickPast(1,'year')">1년 전</button><button class="chip" onclick="quickPast(2,'year')">2년 전</button><button class="chip" onclick="quickPast(3,'year')">3년 전</button></div>
+      <div class="grid-2"><div><label for="pastAmount">숫자</label><input type="number" id="pastAmount" min="1" value="1"></div><div><label for="pastUnit">단위</label><select id="pastUnit"><option value="day">일 전</option><option value="week">주 전</option><option value="month">개월 전</option><option value="year" selected>년 전</option></select></div></div>
+      <div class="grid-2"><div><label for="pastRange">조회범위</label><select id="pastRange"><option value="0">정확히 그날</option><option value="3">전후 3일</option><option value="7" selected>전후 7일</option><option value="15">전후 15일</option><option value="30">전후 30일</option></select></div><div><label for="pastCategory">카테고리</label><select id="pastCategory"><option value="전체">전체</option><option value="기도제목">기도제목</option><option value="감사">감사</option><option value="말씀묵상">말씀묵상</option><option value="중보기도">중보기도</option><option value="응답기록">응답기록</option><option value="가족">가족</option><option value="사역/교회">사역/교회</option><option value="건강">건강</option><option value="기타">기타</option></select></div></div>
+      <button class="btn" style="margin-top:10px" onclick="loadPast()">과거 기록 보기</button>
+    </div>
+    <div id="pastInfo"></div><div id="pastList"></div>
+  </section>
+
+  <section id="page-search" class="page">
+    <div class="card">
+      <div class="section-title"><h2>검색</h2><button class="info-btn" onclick="openInfo('검색','검색어, 태그, 카테고리, 상태, 기간으로 기도일지를 찾을 수 있습니다.')">ⓘ</button></div>
+      <label for="searchKeyword">검색어</label><input id="searchKeyword" placeholder="예: 자녀, 건강, 통역">
+      <div class="grid-2"><div><label for="searchMode">기도모드</label><select id="searchMode"><option value="전체">전체</option><option value="간구">간구</option><option value="감사">감사</option></select></div><div><label for="searchCategory">카테고리</label><select id="searchCategory"><option value="전체">전체</option><option value="기도제목">기도제목</option><option value="감사">감사</option><option value="말씀묵상">말씀묵상</option><option value="중보기도">중보기도</option><option value="응답기록">응답기록</option><option value="가족">가족</option><option value="사역/교회">사역/교회</option><option value="건강">건강</option><option value="기타">기타</option></select></div></div>
+      <label for="searchStatus">상태</label><select id="searchStatus"><option value="전체">전체</option><option value="기도중">기도중</option><option value="응답됨">응답됨</option><option value="보류">보류</option><option value="종료">종료</option><option value="완료">완료</option></select>
+      <label for="searchTag">태그</label><input id="searchTag" placeholder="예: 가족, 교회, 건강">
+      <div class="grid-2"><div><label for="dateFrom">시작일</label><input type="date" id="dateFrom"></div><div><label for="dateTo">종료일</label><input type="date" id="dateTo"></div></div>
+      <div class="button-row"><button class="btn" onclick="searchPrayer()">검색하기</button><button class="btn secondary" onclick="resetSearch()">초기화</button></div>
+    </div>
+    <div id="searchResultInfo"></div><div id="searchList"></div>
+  </section>
+
+  <section id="page-questions" class="page">
+    <div class="stats" id="questionStatsBox"><div class="stat"><b>0</b><span>질문</span></div><div class="stat"><b>0</b><span>진행</span></div><div class="stat"><b>0</b><span>완료</span></div><div class="stat"><b>0</b><span>답글</span></div></div>
+    <div class="card">
+      <div class="section-title"><h2>질문</h2><button class="info-btn" onclick="openInfo('질문','기도하며 스스로에게 던지는 질문을 기록합니다. 질문에는 답글을 댓글처럼 달 수 있고, 해결되면 완료 처리할 수 있습니다.')">ⓘ</button></div>
+      <label>질문종류</label><select id="questionType"><option value="기도점검">기도점검</option><option value="감사질문">감사질문</option><option value="말씀질문">말씀질문</option><option value="관계질문">관계질문</option><option value="결정질문">결정질문</option><option value="회개질문">회개질문</option><option value="기타">기타</option></select>
+      <label for="questionContent">질문내용</label><textarea id="questionContent" placeholder="예: 지금 내가 붙잡고 기도해야 할 것은 무엇인가?"></textarea>
+      <button class="btn" style="margin-top:10px" onclick="saveQuestionFast()">질문 저장</button>
+    </div>
+    <div class="card"><div class="grid-2"><div><label for="questionFilterStatus">상태</label><select id="questionFilterStatus" onchange="loadQuestions(true)"><option value="전체">전체</option><option value="진행중">진행중</option><option value="완료">완료</option></select></div><div><label for="questionFilterType">종류</label><select id="questionFilterType" onchange="loadQuestions(true)"><option value="전체">전체</option><option value="기도점검">기도점검</option><option value="감사질문">감사질문</option><option value="말씀질문">말씀질문</option><option value="관계질문">관계질문</option><option value="결정질문">결정질문</option><option value="회개질문">회개질문</option><option value="기타">기타</option></select></div></div></div>
+    <div id="questionList"></div>
+  </section>
+</main>
+
+<div class="bottom-nav"><div class="bottom-nav-inner"><button class="nav-btn active" onclick="showPage('write')"><b>＋</b>기록</button><button class="nav-btn" onclick="showPage('open')"><b>🙏</b>기도중</button><button class="nav-btn" onclick="showPage('today')"><b>☀</b>오늘</button><button class="nav-btn" onclick="showPage('past')"><b>↩</b>과거</button><button class="nav-btn" onclick="showPage('search')"><b>⌕</b>검색</button><button class="nav-btn" onclick="showPage('questions')"><b>❔</b>질문</button></div></div>
+
+<div class="modal-bg" id="infoModal" onclick="closeModalByBg(event,'infoModal')"><div class="modal"><h3 id="infoTitle"></h3><div class="modal-text" id="infoText"></div><button class="btn secondary" style="margin-top:12px" onclick="closeInfo()">닫기</button></div></div>
+<div class="modal-bg" id="helpModal" onclick="closeModalByBg(event,'helpModal')"><div class="modal"><h3>도움말</h3><div class="help-list"><div class="help-item"><b>🔥 Firestore</b> 모든 기록은 Firebase Firestore에 저장되고 실시간 동기화됩니다.</div><div class="help-item"><b>🤖 GPT</b> 상단 GPT 버튼 또는 Ctrl+G로 지정한 ChatGPT 대화방을 엽니다.</div><div class="help-item"><b>📦 업데이트</b> 버전별 수정 내역과 앞으로 추가할 기능을 적어둡니다.</div><div class="help-item"><b>💬 부분응답</b> 완료된 응답은 아니지만 기도 중 보인 작은 응답을 댓글처럼 기록합니다.</div></div><button class="btn secondary" style="margin-top:12px" onclick="closeHelp()">닫기</button></div></div>
+
+<div class="modal-bg" id="updateModal" onclick="closeModalByBg(event,'updateModal')"><div class="modal"><h3>📦 업데이트 센터</h3><div class="update-current" id="updateCurrentBox"></div><button class="btn blue" onclick="seedInitialDataManually()">엑셀 백업 데이터 Firestore로 가져오기</button><div class="notice" style="margin-top:8px">엑셀 백업 포함: 기도 10개, 부분응답 15개, 질문 6개, 질문답글 2개, 업데이트내역 9개, 업데이트메모 5개. 이미 있는 ID는 덮어쓰지 않습니다.</div><label>향후 업데이트 상태</label><select id="updateMemoStatus"><option value="예정">예정</option><option value="진행중">진행중</option><option value="완료">완료</option></select><label>업데이트 메모 제목</label><input id="updateMemoTitle" placeholder="예: 기도 통계 그래프 추가"><label>업데이트 메모 내용</label><textarea id="updateMemoContent" placeholder="앞으로 수정하거나 추가하고 싶은 기능을 적어두세요."></textarea><button class="btn" style="margin-top:10px" onclick="saveUpdateMemoFast()">업데이트 메모 저장</button><h3 style="margin-top:18px">앞으로 업데이트할 것</h3><div id="updateMemoList" class="update-list"></div><h3 style="margin-top:18px">버전별 업데이트 내역</h3><div id="updateHistoryList" class="update-list"></div><button class="btn secondary" style="margin-top:14px" onclick="closeUpdateCenter()">닫기</button></div></div>
+
+<div class="modal-bg" id="editPrayerModal" onclick="closeModalByBg(event,'editPrayerModal')"><div class="modal"><h3>기도 수정</h3><input type="hidden" id="editPrayerId"><input class="hidden-date" type="date" id="editPrayerDate" onchange="updateDateDisplay('editPrayerDate','editPrayerDateDisplay')"><div class="compact-row"><div class="compact-label">날짜</div><div class="date-row"><button type="button" class="date-display" id="editPrayerDateDisplay" onclick="openDatePicker('editPrayerDate')"></button><button type="button" class="date-icon" onclick="openDatePicker('editPrayerDate')">📅</button></div></div><label>카테고리</label><select id="editPrayerCategory"><option value="기도제목">기도제목</option><option value="중보기도">중보기도</option><option value="가족">가족</option><option value="사역/교회">사역/교회</option><option value="건강">건강</option><option value="기타">기타</option></select><label>상태</label><select id="editPrayerStatus"><option value="기도중">기도중</option><option value="보류">보류</option><option value="응답됨">응답됨</option><option value="종료">종료</option></select><label>제목</label><input id="editPrayerTitle"><label>내용</label><textarea id="editPrayerContent"></textarea><label>태그</label><input id="editPrayerTags"><div class="button-row"><button class="btn" onclick="savePrayerEdit()">수정 저장</button><button class="btn secondary" onclick="closeEditPrayerModal()">닫기</button></div></div></div>
+
+<div class="modal-bg" id="partialModal" onclick="closeModalByBg(event,'partialModal')"><div class="modal"><h3>💬 부분응답 기록</h3><input type="hidden" id="partialPrayerId"><input type="hidden" id="partialEditId"><input class="hidden-date" type="date" id="partialDate" onchange="updateDateDisplay('partialDate','partialDateDisplay')"><div class="compact-row"><div class="compact-label">기록일</div><div class="date-row"><button type="button" class="date-display" id="partialDateDisplay" onclick="openDatePicker('partialDate')"></button><button type="button" class="date-icon" onclick="openDatePicker('partialDate')">📅</button></div></div><label for="partialContent">부분응답 내용</label><textarea id="partialContent" placeholder="아직 완전한 응답은 아니지만, 진행 중에 보인 작은 응답을 기록해보세요."></textarea><div class="button-row"><button class="btn" id="partialSaveBtn" onclick="savePartialResponseFromModal()">부분응답 저장</button><button class="btn secondary" onclick="resetPartialForm()">입력 초기화</button></div><button class="btn secondary" style="margin-top:8px" onclick="closePartialModal()">닫기</button><div id="partialList" class="partial-list"></div></div></div>
+
+<div class="modal-bg" id="questionReplyModal" onclick="closeModalByBg(event,'questionReplyModal')"><div class="modal"><h3>💬 질문 답글</h3><input type="hidden" id="questionReplyQuestionId"><input type="hidden" id="questionReplyEditId"><input class="hidden-date" type="date" id="questionReplyDate" onchange="updateDateDisplay('questionReplyDate','questionReplyDateDisplay')"><div class="compact-row"><div class="compact-label">기록일</div><div class="date-row"><button type="button" class="date-display" id="questionReplyDateDisplay" onclick="openDatePicker('questionReplyDate')"></button><button type="button" class="date-icon" onclick="openDatePicker('questionReplyDate')">📅</button></div></div><label>답글내용</label><textarea id="questionReplyContent" placeholder="질문에 대해 떠오른 생각, 기도 중 받은 마음, 답을 기록해보세요."></textarea><div class="button-row"><button class="btn" id="questionReplySaveBtn" onclick="saveQuestionReplyFromModal()">답글 저장</button><button class="btn secondary" onclick="resetQuestionReplyForm()">입력 초기화</button></div><button class="btn secondary" style="margin-top:8px" onclick="closeQuestionReplyModal()">닫기</button><div id="questionReplyList" class="partial-list"></div></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+  window.SEED_DATA = {
+  "prayers": [
+    {
+      "id": "PRAY-20260524104907-25926",
+      "date": "2026-05-24",
+      "time": "10:49:07",
+      "category": "기도제목",
+      "title": "",
+      "content": "테스트",
+      "tags": "",
+      "status": "종료",
+      "responseDate": "2026-05-24",
+      "responseContent": "",
+      "importance": "보통",
+      "createdAt": "2026-05-24 10:49:07",
+      "updatedAt": "2026-05-25 22:31:36",
+      "mode": "간구",
+      "source": "excel-migration"
+    },
+    {
+      "id": "PRAY-LOCAL-1779588277589-70237",
+      "date": "2026-05-24",
+      "time": "11:04:40",
+      "category": "기도제목",
+      "title": "",
+      "content": "테스트 두번째♡",
+      "tags": "",
+      "status": "종료",
+      "responseDate": "2026-05-24",
+      "responseContent": "",
+      "importance": "보통",
+      "createdAt": "2026-05-24 11:04:40",
+      "updatedAt": "2026-05-25 22:31:31",
+      "mode": "간구",
+      "source": "excel-migration"
+    },
+    {
+      "id": "PRAY-LOCAL-1779714815843-50283",
+      "date": "2026-05-25",
+      "time": "22:13:36",
+      "category": "기타",
+      "title": "습관을 위한 기도",
+      "content": "잠을 자는 시간과 아침에 일어나는 시간에 대한 습관이 자리잡도록 인도하소서. \n먼저는 아침에 일어나서 운동을 통해 건강을 잘 관리하고 싶은 마음을 주세요. \n6시 30분에는 일어나서 아침 운동으로 하루를 시작할 수 있도록 인도해주세요. \n밤 11시 이전에는 잠에 들 준비, 즉 내일 하루를 시작할 준비를 하고서 잠에 들게 해주세요. \n올해안에 체지방률을 10% 초반대에 진입하도록 해주세요. \n3km 12분 30초 기록을 달성할 수 있도록\n인바디점수 80점대 중후반을 기록하도록",
+      "tags": "건강, 운동, 습관",
+      "status": "기도중",
+      "responseDate": "2026-05-25",
+      "responseContent": "",
+      "importance": "보통",
+      "createdAt": "2026-05-25 22:13:36",
+      "updatedAt": "2026-05-25 22:13:36",
+      "mode": "간구",
+      "source": "excel-migration"
+    },
+    {
+      "id": "PRAY-LOCAL-1779776479306-13747",
+      "date": "2026-05-26",
+      "time": "15:21:20",
+      "category": "감사",
+      "title": "리플렛 작업",
+      "content": "처음 계획했던 출고 일정을 당겨보는 것이 아니라 다른 업체를 통해 보다 전문화된 작업에 대해 배울 수 있게 하셔서 감사합니다.",
+      "tags": "직장",
+      "status": "완료",
+      "responseDate": "2026-05-26",
+      "responseContent": "",
+      "importance": "보통",
+      "createdAt": "2026-05-26 15:21:20",
+      "updatedAt": "2026-05-26 15:21:20",
+      "mode": "감사",
+      "source": "excel-migration"
+    },
+    {
+      "id": "PRAY-LOCAL-1779776727762-93180",
+      "date": "2026-05-26",
+      "time": "15:25:28",
+      "category": "기도제목",
+      "title": "정리 습관",
+      "content": "정리하는 습관과 방법을 주옵소서.",
+      "tags": "직장, 정리, 습관",
+      "status": "기도중",
+      "responseDate": "2026-05-26",
+      "responseContent": "",
+      "importance": "보통",
+      "createdAt": "2026-05-26 15:25:28",
+      "updatedAt": "2026-05-26 15:25:28",
+      "mode": "간구",
+      "source": "excel-migration"
+    },
+    {
+      "id": "PRAY-LOCAL-1779840196061-18703",
+      "date": "2026-05-27",
+      "time": "09:03:17",
+      "category": "기도제목",
+      "title": "동행",
+      "content": "오늘 하루 하나님과 동행하는 하루가 되게 해주세요.",
+      "tags": "",
+      "status": "기도중",
+      "responseDate": "2026-05-27",
+      "responseContent": "",
+      "importance": "보통",
+      "createdAt": "2026-05-27 09:03:17",
+      "updatedAt": "2026-05-27 09:03:17",
+      "mode": "간구",
+      "source": "excel-migration"
+    },
+    {
+      "id": "PRAY-LOCAL-1779872987440-3721",
+      "date": "2026-05-27",
+      "time": "18:09:48",
+      "category": "기도제목",
+      "title": "여가 시간을 위한 기도",
+      "content": "여가시간을 잘 보낼 수 있게 하소서.\n여가시간을 준비하는 시간으로 보내게 하소서.\n시간을 저에게 맡겨주신 것으로 알고 청지기의 마음을 갖게 하옵소서.",
+      "tags": "",
+      "status": "기도중",
+      "responseDate": "",
+      "responseContent": "",
+      "importance": "보통",
+      "createdAt": "2026-05-27 18:09:48",
+      "updatedAt": "2026-05-28 22:13:49",
+      "mode": "간구",
+      "source": "excel-migration"
+    },
+    {
+      "id": "PRAY-LOCAL-1779887712744-25969",
+      "date": "2026-05-27",
+      "time": "22:15:14",
+      "category": "기도제목",
+      "title": "상황, 필요에 대한 지혜",
+      "content": "필요의 관점에서 지혜를 깨우치게 하옵소서.\n상황에 대해 묵상할 때 하나님의 관점에서의 깨달음을 주옵소서.",
+      "tags": "",
+      "status": "기도중",
+      "responseDate": "",
+      "responseContent": "",
+      "importance": "보통",
+      "createdAt": "2026-05-27 22:15:14",
+      "updatedAt": "2026-05-28 15:51:17",
+      "mode": "간구",
+      "source": "excel-migration"
+    },
+    {
+      "id": "PRAY-LOCAL-1780029017749-73851",
+      "date": "2026-05-29",
+      "time": "13:30:18",
+      "category": "기도제목",
+      "title": "수어통역사 자격 취득",
+      "content": "수어통역사 자격증 시험에 대한 지혜를 주옵소서.",
+      "tags": "직장, 수어",
+      "status": "기도중",
+      "responseDate": "2026-05-29",
+      "responseContent": "",
+      "importance": "중요",
+      "createdAt": "2026-05-29 13:30:18",
+      "updatedAt": "2026-05-29 13:30:18",
+      "mode": "간구",
+      "source": "excel-migration"
+    },
+    {
+      "id": "PRAY-LOCAL-1780120444919-41128",
+      "date": "2026-05-30",
+      "time": "14:54:07",
+      "category": "감사",
+      "title": "교통사고를 통해 얻은 감사",
+      "content": "교통사고를 통해 발견케 하신 은혜를 감사합니다.\n가해자가 아닌 피해자로 깨닫게 하신 것 감사합니다.\n휴대폰을 하는 습관을 돌아보게 하시고, 블랙박스 설치 및 운행의 필요성도 돌아보게 하시니 감사합니다. 이를 계기로 습관이 변화되게 하소서.",
+      "tags": "",
+      "status": "완료",
+      "responseDate": "2026-05-30",
+      "responseContent": "",
+      "importance": "보통",
+      "createdAt": "2026-05-30 14:54:07",
+      "updatedAt": "2026-05-30 14:54:07",
+      "mode": "감사",
+      "source": "excel-migration"
+    }
+  ],
+  "partials": [
+    {
+      "id": "PARTIAL-LOCAL-1779760362270-72426",
+      "prayerId": "PRAY-LOCAL-1779714815843-50283",
+      "date": "2026-05-26",
+      "time": "10:52:43",
+      "content": "습관을 바꾸는 것이 얼마나 어려운지 알게 하셔서 감사합니다.\n또 운동으로 나가지 않으므로 생리로 힘든 아내의 부탁으로 아들들과 함께 아들하게 하심을 감사합니다.",
+      "createdAt": "2026-05-26 10:52:43",
+      "updatedAt": "2026-05-26 10:52:43",
+      "source": "excel-migration"
+    },
+    {
+      "id": "PARTIAL-LOCAL-1779776811369-33449",
+      "prayerId": "PRAY-LOCAL-1779776727762-93180",
+      "date": "2026-05-26",
+      "time": "15:26:52",
+      "content": "정리의 기본은 버리는 것. \n그리고 한번에 하나씩 하는 것. \n할 수 있는 최소한의 것을 하나씩 행하는 것.",
+      "createdAt": "2026-05-26 15:26:52",
+      "updatedAt": "2026-05-26 15:26:52",
+      "source": "excel-migration"
+    },
+    {
+      "id": "PARTIAL-LOCAL-1779926120729-1657",
+      "prayerId": "PRAY-LOCAL-1779887712744-25969",
+      "date": "2026-05-28",
+      "time": "08:55:21",
+      "content": "상황에 따른 필요가 있음을 알게하셔서 감사합니다.",
+      "createdAt": "2026-05-28 08:55:21",
+      "updatedAt": "2026-05-28 08:55:21",
+      "source": "excel-migration"
+    },
+    {
+      "id": "PARTIAL-LOCAL-1779926175417-37946",
+      "prayerId": "PRAY-LOCAL-1779872987440-3721",
+      "date": "2026-05-28",
+      "time": "08:56:16",
+      "content": "여가시간에 영상을 보는 것은 진정한 여가가 아님을 알게하셔서 감사합니다.",
+      "createdAt": "2026-05-28 08:56:16",
+      "updatedAt": "2026-05-28 08:56:16",
+      "source": "excel-migration"
+    },
+    {
+      "id": "PARTIAL-LOCAL-1779929339260-37100",
+      "prayerId": "PRAY-LOCAL-1779887712744-25969",
+      "date": "2026-05-28",
+      "time": "09:49:01",
+      "content": "하나님께서는 상황을 인도하시고 나의 순종을 기다리신다. \n오늘 주어지는 상황들의 필요에 적극적으로 반응하게 하셔서 하나님의 뜻을 발견하게 하옵소서.",
+      "createdAt": "2026-05-28 09:49:01",
+      "updatedAt": "2026-05-28 09:49:01",
+      "source": "excel-migration"
+    },
+    {
+      "id": "PARTIAL-LOCAL-1779933850027-20616",
+      "prayerId": "PRAY-LOCAL-1779887712744-25969",
+      "date": "2026-05-28",
+      "time": "11:04:11",
+      "content": "강도 만난 자의 이웃...\n지금 이 시대에 강도 만난 자는 어떤 사람인가요? 갑작스런 장애로 인해 직장을 잃은 김태호씨와 같은 사람이다. 내가 그에게 도움이 될 수 있었던 이유는 배달의 민족을 통해 앞전에 조수영님을 도왔던 경험이 있기 때문이다. 나의 경험이 다른 사람에게 도움이 될 수 있음을 깨닫게 하심을 감사합니다.",
+      "createdAt": "2026-05-28 11:04:11",
+      "updatedAt": "2026-05-28 11:04:11",
+      "source": "excel-migration"
+    },
+    {
+      "id": "PARTIAL-LOCAL-1779934573941-2262",
+      "prayerId": "PRAY-LOCAL-1779887712744-25969",
+      "date": "2026-05-28",
+      "time": "11:16:15",
+      "content": "다른 사람의 필요에 대해 불평과 불만으로 반응하지 않고 기쁨과 감사로 반응하게 하소서. \n필요를 채울 수 있다는 것이 축복임을 깨달아 더욱 더 필요에 민감히 반응하여 필요를 채울 수 있음에 기뻐하는 삶을 살게 하소서.",
+      "createdAt": "2026-05-28 11:16:15",
+      "updatedAt": "2026-05-28 11:16:15",
+      "source": "excel-migration"
+    },
+    {
+      "id": "PARTIAL-LOCAL-1779935088696-14339",
+      "prayerId": "PRAY-LOCAL-1779840196061-18703",
+      "date": "2026-05-28",
+      "time": "11:24:50",
+      "content": "기도하는 제목이 있고 이를 인도하시는 하나님에 대한 신뢰가 있을때 삶의 활력이 있다는 것을 발견하게 되었습니다.",
+      "createdAt": "2026-05-28 11:24:50",
+      "updatedAt": "2026-05-28 11:24:50",
+      "source": "excel-migration"
+    },
+    {
+      "id": "PARTIAL-LOCAL-1779951184806-15955",
+      "prayerId": "PRAY-LOCAL-1779887712744-25969",
+      "date": "2026-05-28",
+      "time": "15:53:08",
+      "content": "강도만난 자의 상황은 운이 좋지않게 또는 원하지 않음에도 강도를 만난 것이 바로 상황이다. 오늘 강도만난 것 같은 원치않는 상황이야 말로 강도만난 이웃이라 할 수 있다. 이를 관통하는 단어는 상황이다. 그가 처한 상황 자체가 바로 강도만난 것이 될 수 있다.",
+      "createdAt": "2026-05-28 15:53:08",
+      "updatedAt": "2026-05-28 15:53:08",
+      "source": "excel-migration"
+    },
+    {
+      "id": "PARTIAL-LOCAL-1779974092795-80187",
+      "prayerId": "PRAY-LOCAL-1779872987440-3721",
+      "date": "2026-05-28",
+      "time": "22:14:54",
+      "content": "여가 시간을 통해 앞으로 닥쳐올 상황에 대해 생각하고 묵상하게 하셔서 지금 이 시간에 내가 해야할 일이 무엇인지 확실히 알게하시고 인도하옵소서. \n상황에 대한 묵상을 통해 지금 이 순간 해야할 일을 선택하며 살게 하옵소서. 그런 습관을 자리잡게 하소서.",
+      "createdAt": "2026-05-28 22:14:54",
+      "updatedAt": "2026-05-28 22:14:54",
+      "source": "excel-migration"
+    },
+    {
+      "id": "PARTIAL-LOCAL-1780023294442-21342",
+      "prayerId": "PRAY-LOCAL-1779887712744-25969",
+      "date": "2026-05-29",
+      "time": "11:54:56",
+      "content": "그 사람의 상태도 강도만난 자일 수 있음을 보게 하셨다. 적극적인 도움이 곧 나를 돕는 도움이 되어 돌아올 것이다.",
+      "createdAt": "2026-05-29 11:54:56",
+      "updatedAt": "2026-05-29 11:54:56",
+      "source": "excel-migration"
+    },
+    {
+      "id": "PARTIAL-LOCAL-1780029047047-23019",
+      "prayerId": "PRAY-LOCAL-1780029017749-73851",
+      "date": "2026-05-29",
+      "time": "13:30:47",
+      "content": "음성통역에 자주 등장하는 장르인 역사와 관련된 수어에 대해 훈련하여 준비되게 하소서.",
+      "createdAt": "2026-05-29 13:30:47",
+      "updatedAt": "2026-05-29 13:30:47",
+      "source": "excel-migration"
+    },
+    {
+      "id": "PARTIAL-LOCAL-1780034044416-48627",
+      "prayerId": "PRAY-LOCAL-1779887712744-25969",
+      "date": "2026-05-29",
+      "time": "14:54:05",
+      "content": "주님, 저마다의 필요가 있지만 그 필요들이 충돌하여 갈등이 생기는 것을 봅니다.\n무조건 적으로 필요를 채우려 하는 것이 꼭 정답은 아니라는 생각이 듭니다. \n지혜롭게 필요에 대해 접근하게 하소서.",
+      "createdAt": "2026-05-29 14:54:05",
+      "updatedAt": "2026-05-29 14:54:05",
+      "source": "excel-migration"
+    },
+    {
+      "id": "PARTIAL-LOCAL-1780043168176-89047",
+      "prayerId": "PRAY-LOCAL-1780029017749-73851",
+      "date": "2026-05-29",
+      "time": "17:26:09",
+      "content": "여유시간을 활용해 한경국립대 수어영상을 학습하게 하소서.",
+      "createdAt": "2026-05-29 17:26:09",
+      "updatedAt": "2026-05-29 17:26:09",
+      "source": "excel-migration"
+    },
+    {
+      "id": "PARTIAL-LOCAL-1780110133992-94825",
+      "prayerId": "PRAY-LOCAL-1780029017749-73851",
+      "date": "2026-05-30",
+      "time": "12:02:15",
+      "content": "기도를 확인하는 습관을 주옵소서. 확인하는 습관이 있으면 그 기도한 것에 대해 행함이 있는 모습으로 살게된다.",
+      "createdAt": "2026-05-30 12:02:15",
+      "updatedAt": "2026-05-30 12:02:15",
+      "source": "excel-migration"
+    }
+  ],
+  "questions": [
+    {
+      "id": "QUESTION-LOCAL-1779715841486-96535",
+      "date": "2026-05-25",
+      "time": "22:30:42",
+      "qType": "감사질문",
+      "content": "하루를 돌아보며 어떤 감사를 기록해야할까?",
+      "status": "진행중",
+      "doneDate": "",
+      "createdAt": "2026-05-25 22:30:42",
+      "updatedAt": "2026-05-25 22:30:42",
+      "source": "excel-migration"
+    },
+    {
+      "id": "QUESTION-LOCAL-1779717073336-93269",
+      "date": "2026-05-25",
+      "time": "22:51:14",
+      "qType": "기타",
+      "content": "업데이트 기록 메모장 아이콘 생성..",
+      "status": "진행중",
+      "doneDate": "",
+      "createdAt": "2026-05-25 22:51:14",
+      "updatedAt": "2026-05-25 22:51:14",
+      "source": "excel-migration"
+    },
+    {
+      "id": "QUESTION-LOCAL-1779862032211-77632",
+      "date": "2026-05-27",
+      "time": "15:07:14",
+      "qType": "감사질문",
+      "content": "어떻게 하면 기뻐하고 감사하며 일할 수 있을까?",
+      "status": "진행중",
+      "doneDate": "",
+      "createdAt": "2026-05-27 15:07:14",
+      "updatedAt": "2026-05-27 15:07:14",
+      "source": "excel-migration"
+    },
+    {
+      "id": "QUESTION-LOCAL-1779875815921-23041",
+      "date": "2026-05-27",
+      "time": "18:56:56",
+      "qType": "기타",
+      "content": "여가, 여유시간을 어떻게 보내야할까?",
+      "status": "진행중",
+      "doneDate": "",
+      "createdAt": "2026-05-27 18:56:56",
+      "updatedAt": "2026-05-27 18:56:56",
+      "source": "excel-migration"
+    },
+    {
+      "id": "QUESTION-LOCAL-1779882459290-90872",
+      "date": "2026-05-27",
+      "time": "20:47:40",
+      "qType": "관계질문",
+      "content": "아이들이 말을 듣지 않고 싸우는 모습이 왜이리 화가날까?",
+      "status": "진행중",
+      "doneDate": "",
+      "createdAt": "2026-05-27 20:47:40",
+      "updatedAt": "2026-05-27 20:47:40",
+      "source": "excel-migration"
+    },
+    {
+      "id": "QUESTION-LOCAL-1779884919030-58506",
+      "date": "2026-05-27",
+      "time": "21:28:40",
+      "qType": "기타",
+      "content": "마음을 먹는 것이 참으로 어렵습니다. 결정했던 일들도 시간이 흘러 다시 제자리인 것을 봅니다. 어떻게 마음을 먹고 또 유지시킬 수 있을까요?",
+      "status": "진행중",
+      "doneDate": "",
+      "createdAt": "2026-05-27 21:28:40",
+      "updatedAt": "2026-05-27 21:28:40",
+      "source": "excel-migration"
+    }
+  ],
+  "questionReplies": [
+    {
+      "id": "QREPLY-LOCAL-1779717032369-42248",
+      "questionId": "QUESTION-LOCAL-1779715841486-96535",
+      "date": "2026-05-25",
+      "time": "22:50:33",
+      "content": "기도하고 있고 또 그 기도에 대한 최선의 행동을 하고 있다면 감사할 것이 반드시 존재한다. \n내일 운동을 행함으로 내가 기도한 것에 대해 감사를 기록해보라. 그리고 어떤 행동이든지 그냥 하는 것이 아니라 기도하면서, 기도하고서 하는 행동은 그 결과에 상관없이 하나님께 감사를 고백할 수 있는 거리가 된다는 것을 생각하라.",
+      "createdAt": "2026-05-25 22:50:33",
+      "updatedAt": "2026-05-25 22:50:33",
+      "source": "excel-migration"
+    },
+    {
+      "id": "QREPLY-LOCAL-1779869548593-91731",
+      "questionId": "QUESTION-LOCAL-1779862032211-77632",
+      "date": "2026-05-27",
+      "time": "17:12:30",
+      "content": "도움을 주는 것, 그런 일을 하는 것이 곧 나에게 도움을 주는 일이 되기 때문이다.",
+      "createdAt": "2026-05-27 17:12:30",
+      "updatedAt": "2026-05-27 17:12:30",
+      "source": "excel-migration"
+    }
+  ],
+  "updateHistory": [
+    {
+      "id": "VER-1-0-0",
+      "version": "v1.0.0",
+      "date": "2026-05-24",
+      "title": "기도일지 기본 기능",
+      "content": "기도제목, 감사, 말씀묵상, 중보기도, 응답기록을 구글시트에 저장하는 기본 구조를 구성했습니다.",
+      "createdAt": "2026-05-26 16:11:12",
+      "source": "excel-migration"
+    },
+    {
+      "id": "VER-1-1-0",
+      "version": "v1.1.0",
+      "date": "2026-05-24",
+      "title": "과거의 나 다시 보기",
+      "content": "1주 전, 1개월 전, 1년 전, 2년 전 등 과거 기록을 선택해서 볼 수 있도록 했습니다.",
+      "createdAt": "2026-05-26 16:11:12",
+      "source": "excel-migration"
+    },
+    {
+      "id": "VER-1-2-0",
+      "version": "v1.2.0",
+      "date": "2026-05-24",
+      "title": "모바일 화면 개선",
+      "content": "휴대폰에서 기록하기 편하도록 하단 메뉴, 날짜 선택, 카테고리 선택 UI를 개선했습니다.",
+      "createdAt": "2026-05-26 16:11:12",
+      "source": "excel-migration"
+    },
+    {
+      "id": "VER-1-3-0",
+      "version": "v1.3.0",
+      "date": "2026-05-24",
+      "title": "기도모드 추가",
+      "content": "간구와 감사를 구분했습니다. 감사모드는 자동으로 완료 처리되도록 구성했습니다.",
+      "createdAt": "2026-05-26 16:11:12",
+      "source": "excel-migration"
+    },
+    {
+      "id": "VER-1-4-0",
+      "version": "v1.4.0",
+      "date": "2026-05-24",
+      "title": "부분응답 기록 추가",
+      "content": "완전히 응답된 것은 아니지만 진행 중에 보인 작은 응답을 부분응답으로 기록할 수 있게 했습니다.",
+      "createdAt": "2026-05-26 16:11:12",
+      "source": "excel-migration"
+    },
+    {
+      "id": "VER-1-5-0",
+      "version": "v1.5.0",
+      "date": "2026-05-24",
+      "title": "기도 수정 및 부분응답 수정/삭제",
+      "content": "기도중인 기도제목을 수정할 수 있고, 부분응답 기록도 수정 및 삭제할 수 있도록 했습니다.",
+      "createdAt": "2026-05-26 16:11:12",
+      "source": "excel-migration"
+    },
+    {
+      "id": "VER-1-6-0",
+      "version": "v1.6.0",
+      "date": "2026-05-24",
+      "title": "질문 기능 추가",
+      "content": "기도와 관련된 질문을 기록하고, 질문에 답글을 달며, 해결된 질문은 완료 처리할 수 있게 했습니다.",
+      "createdAt": "2026-05-26 16:11:12",
+      "source": "excel-migration"
+    },
+    {
+      "id": "VER-1-7-0",
+      "version": "v1.7.0",
+      "date": "2026-05-26",
+      "title": "업데이트 센터 및 속도 개선",
+      "content": "상단에 업데이트 내역과 향후 업데이트 메모를 관리하는 공간을 추가하고, 기록 조회 속도 개선을 위해 서버 캐시 기능을 추가했습니다.",
+      "createdAt": "2026-05-26 16:11:12",
+      "source": "excel-migration"
+    },
+    {
+      "id": "VER-2-0-0",
+      "version": "v2.0.0",
+      "date": "2026-05-31",
+      "title": "GitHub + Firestore 실시간 동기화 전환",
+      "content": "Apps Script/Google Sheets 기반 기도일지를 GitHub Pages index.html + Firebase Firestore 구조로 전환했습니다. 실시간 동기화, 엑셀 백업 데이터 가져오기, GPT 바로가기(Ctrl+G)를 추가했습니다.",
+      "createdAt": "2026-05-31 00:00:00",
+      "source": "code-generation"
+    }
+  ],
+  "updateMemos": [
+    {
+      "id": "UPDATEMEMO-LOCAL-1779869580140-69621",
+      "date": "2026-05-27",
+      "time": "17:13:01",
+      "status": "예정",
+      "title": "",
+      "content": "질문이나 기도중인 내용에서 답글을 달면 답글 수가 확인될 수 있도록",
+      "createdAt": "2026-05-27 17:13:01",
+      "updatedAt": "2026-05-27 17:13:11",
+      "source": "excel-migration"
+    },
+    {
+      "id": "UPDATEMEMO-LOCAL-1779872708795-94528",
+      "date": "2026-05-27",
+      "time": "18:05:10",
+      "status": "예정",
+      "title": "",
+      "content": "깃헙, 파이어스토어 연동하여 데이터 저장",
+      "createdAt": "2026-05-27 18:05:10",
+      "updatedAt": "2026-05-27 18:05:10",
+      "source": "excel-migration"
+    },
+    {
+      "id": "UPDATEMEMO-LOCAL-1779935172785-76156",
+      "date": "2026-05-28",
+      "time": "11:26:15",
+      "status": "예정",
+      "title": "",
+      "content": "기도중 아이콘이 원 상단인데 텍스트 폰트도 약간 깨지는 느낌이고 가운데, 중앙 정렬로 깔끔하게 배치되도록.\n기도중에 2줄 4칸으로 표시중인데 한줄 4칸으로 깔끔하게 표시해줘. \n상단에 기도중에 숫자 표시되어 있는 것 클릭시 기도중 탭으로 이동되도록 해줘. \nPC인터페이스와 모바일 인터페이스 구분해서 해줘. 지금 PC에서도 모바일 버전임.",
+      "createdAt": "2026-05-28 11:26:15",
+      "updatedAt": "2026-05-28 11:26:15",
+      "source": "excel-migration"
+    },
+    {
+      "id": "UPDATEMEMO-LOCAL-1779935356692-674",
+      "date": "2026-05-28",
+      "time": "11:29:19",
+      "status": "예정",
+      "title": "",
+      "content": "아래 GPT링크를 아이콘으로 업데이트 옆에 위치하여 해당 링크 클릭시 이동될 수 있도록 아이콘 추가\nhttps://chatgpt.com/c/6a1252df-7308-83a7-aaff-069fd773983e",
+      "createdAt": "2026-05-28 11:29:19",
+      "updatedAt": "2026-05-28 11:29:19",
+      "source": "excel-migration"
+    },
+    {
+      "id": "UPDATEMEMO-LOCAL-1780028968566-98972",
+      "date": "2026-05-29",
+      "time": "13:29:29",
+      "status": "예정",
+      "title": "",
+      "content": "https://docs.google.com/spreadsheets/d/1S8jhOqN3H8gdO-s77-EuCAXSPNRcDMvJN2ean__w2W0/edit?gid=831793510#gid=831793510\n위 링크를 아이콘해서 업데이트 센터 옆에 버튼으로 업데이트 시트로 이동하기 박스 추가",
+      "createdAt": "2026-05-29 13:29:29",
+      "updatedAt": "2026-05-29 13:29:29",
+      "source": "excel-migration"
+    }
+  ]
+};
+</script>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
+  import { getAnalytics, isSupported } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-analytics.js";
+  import { getFirestore, enableIndexedDbPersistence, collection, doc, setDoc, deleteDoc, onSnapshot, getDoc, writeBatch } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
+
+  const APP_VERSION = "v2.0.0";
+  const GPT_URL = "https://chatgpt.com/c/6a1252df-7308-83a7-aaff-069fd773983e";
+  const SEED_KEY = "prayer-firestore-seeded-v2";
+  const firebaseConfig = {
+    apiKey: "AIzaSyAVjwl6wi65R2Rmfq-a0rp5opmKbKcI0Bw",
+    authDomain: "pr-log-c3874.firebaseapp.com",
+    projectId: "pr-log-c3874",
+    storageBucket: "pr-log-c3874.firebasestorage.app",
+    messagingSenderId: "549618905070",
+    appId: "1:549618905070:web:b2f0225e4dc6766adae8ff",
+    measurementId: "G-LDRS29B8X7"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  isSupported().then(ok => { if (ok) getAnalytics(app); }).catch(() => {});
+  const db = getFirestore(app);
+  enableIndexedDbPersistence(db).catch(() => {});
+
+  const C = {
+    prayers:"prayers",
+    partials:"partialResponses",
+    questions:"questions",
+    qReplies:"questionReplies",
+    updateHistory:"updateHistory",
+    updateMemos:"updateMemos"
+  };
+
+  let currentPage = "write";
+  let prayers = [];
+  let partialResponses = [];
+  let questions = [];
+  let questionReplies = [];
+  let updateHistory = [...(SEED_DATA.updateHistory || [])];
+  let updateMemos = [...(SEED_DATA.updateMemos || [])];
+  const prayerItemMap = {};
+  const questionItemMap = {};
+  let currentPartialPrayerId = "";
+  let currentQuestionId = "";
+
+  document.addEventListener("DOMContentLoaded", () => {
+    setToday();
+    updateSync("연결 중", "");
+    startRealtime();
+    setTimeout(() => seedInitialDataOnce(false, false), 1000);
+  });
+
+  document.addEventListener("keydown", (e) => {
+    if (e.ctrlKey && e.key.toLowerCase() === "g") {
+      e.preventDefault();
+      openGPT();
+    }
+  });
+
+  function startRealtime(){
+    listen(C.prayers, arr => { prayers = sortItems(arr); renderStats(); renderActivePage(); });
+    listen(C.partials, arr => { partialResponses = sortItems(arr); if (isOpen("partialModal")) renderPartialResponses(); });
+    listen(C.questions, arr => { questions = sortItems(arr); renderQuestionStats(); renderActivePage(); });
+    listen(C.qReplies, arr => { questionReplies = sortItems(arr); renderQuestionStats(); if (isOpen("questionReplyModal")) renderQuestionReplies(); });
+    listen(C.updateHistory, arr => { updateHistory = sortVersion(arr.length ? arr : SEED_DATA.updateHistory || []); if (isOpen("updateModal")) renderUpdateCenter(); });
+    listen(C.updateMemos, arr => { updateMemos = sortUpdateMemos(arr.length ? arr : SEED_DATA.updateMemos || []); if (isOpen("updateModal")) renderUpdateCenter(); });
+  }
+
+  function listen(name, callback){
+    onSnapshot(collection(db, name), snap => {
+      const arr = snap.docs.map(d => ({ id:d.id, ...d.data() }));
+      updateSync("실시간 동기화 중", "ok");
+      callback(arr);
+    }, err => {
+      updateSync("Firestore 권한/연결 확인 필요", "bad");
+      console.error(err);
+      toast("Firestore 연결 오류: " + err.message);
+    });
+  }
+
+  async function seedInitialDataOnce(force=false, notify=true){
+    if (!force && localStorage.getItem(SEED_KEY) === "done") return;
+    const groups = [
+      [C.prayers, SEED_DATA.prayers || []],
+      [C.partials, SEED_DATA.partials || []],
+      [C.questions, SEED_DATA.questions || []],
+      [C.qReplies, SEED_DATA.questionReplies || []],
+      [C.updateHistory, SEED_DATA.updateHistory || []],
+      [C.updateMemos, SEED_DATA.updateMemos || []]
+    ];
+    try{
+      let batch = writeBatch(db);
+      let ops = 0, added = 0;
+      for (const [colName, items] of groups){
+        for (const raw of items){
+          if (!raw.id) continue;
+          const ref = doc(db, colName, raw.id);
+          const exists = await getDoc(ref);
+          if (!exists.exists()){
+            batch.set(ref, { ...raw, migratedAt: new Date().toISOString() }, { merge:true });
+            ops++; added++;
+            if (ops >= 450){ await batch.commit(); batch = writeBatch(db); ops = 0; }
+          }
+        }
+      }
+      if (ops > 0) await batch.commit();
+      localStorage.setItem(SEED_KEY, "done");
+      if (notify) toast(added ? `엑셀 백업 ${added}건을 가져왔습니다.` : "가져올 새 백업 데이터가 없습니다.");
+    }catch(err){
+      console.error(err);
+      if (notify) toast("엑셀 데이터 가져오기 실패: " + err.message);
+    }
+  }
+
+  function showPage(page){
+    currentPage = page;
+    ["write","open","today","past","search","questions"].forEach(name => {
+      el("page-"+name).classList.toggle("active", name === page);
+    });
+    document.querySelectorAll(".nav-btn").forEach((btn,idx)=>{
+      btn.classList.toggle("active", ["write","open","today","past","search","questions"][idx] === page);
+    });
+    renderActivePage();
+  }
+
+  function renderActivePage(){
+    if (currentPage === "open") loadOpenPrayers();
+    if (currentPage === "today") loadToday();
+    if (currentPage === "past" && el("pastList").innerHTML.trim()) loadPast();
+    if (currentPage === "questions") { renderQuestionStats(); loadQuestions(); }
+  }
+
+  function setToday(){
+    const today = todayValue();
+    el("entryDate").value = today;
+    el("responseDate").value = today;
+    updateDateDisplay("entryDate","dateDisplay");
+    el("todayText").textContent = formatDateWithDay(today) + " 오늘의 기도";
+  }
+
+  function renderStats(){
+    const today = todayValue();
+    const stats = {
+      today: prayers.filter(p => p.date === today).length,
+      praying: prayers.filter(p => p.mode !== "감사" && p.status === "기도중").length,
+      answered: prayers.filter(p => p.status === "응답됨").length,
+      thanks: prayers.filter(p => p.mode === "감사" || p.category === "감사").length
+    };
+    el("statsBox").innerHTML = `<div class="stat" onclick="showPage('today')"><b>${stats.today}</b><span>오늘</span></div><div class="stat" onclick="showPage('open')"><b>${stats.praying}</b><span>기도중</span></div><div class="stat"><b>${stats.answered}</b><span>응답됨</span></div><div class="stat"><b>${stats.thanks}</b><span>감사</span></div>`;
+  }
+
+  function renderQuestionStats(){
+    const stats = {
+      total: questions.length,
+      open: questions.filter(q => q.status !== "완료").length,
+      done: questions.filter(q => q.status === "완료").length,
+      replies: questionReplies.length
+    };
+    el("questionStatsBox").innerHTML = `<div class="stat"><b>${stats.total}</b><span>질문</span></div><div class="stat"><b>${stats.open}</b><span>진행</span></div><div class="stat"><b>${stats.done}</b><span>완료</span></div><div class="stat"><b>${stats.replies}</b><span>답글</span></div>`;
+  }
+
+  function setChoice(group,val){
+    el(group).value = val;
+    document.querySelectorAll(`[data-group="${group}"]`).forEach(btn => btn.classList.toggle("active", btn.dataset.value === val));
+    if(group === "mode") handleModeChange(val);
+    if(group === "category") handleCategoryChange(val);
+    if(group === "status") updateResponseFields();
+  }
+
+  function handleModeChange(mode){
+    if(mode === "감사"){
+      el("statusBox").style.display = "none";
+      el("modeNote").style.display = "block";
+      el("status").value = "완료";
+      if(value("category") === "기도제목") setChoice("category","감사");
+    }else{
+      el("statusBox").style.display = "block";
+      el("modeNote").style.display = "none";
+      if(value("status") === "완료") setChoice("status","기도중");
+    }
+    updateResponseFields();
+  }
+
+  function handleCategoryChange(category){
+    if(category === "감사" && value("mode") !== "감사") setChoice("mode","감사");
+    if(category === "응답기록"){ if(value("mode") !== "간구") setChoice("mode","간구"); setChoice("status","응답됨"); }
+    updateResponseFields();
+  }
+
+  function updateResponseFields(){
+    el("responseFields").style.display = (value("status")==="응답됨" || value("category")==="응답기록") ? "block" : "none";
+  }
+
+  async function savePrayerFast(){
+    const data = {
+      id: createLocalId("PRAY"),
+      date: value("entryDate"), time: timeValue(),
+      mode: value("mode"), category: value("category"), status: value("status"),
+      title: value("title"), content: value("content"), tags: value("tags"),
+      importance: value("importance"), responseDate: value("responseDate"), responseContent: value("responseContent"),
+      createdAt: nowStamp(), updatedAt: nowStamp()
+    };
+    if(!data.title && !data.content){ toast("제목이나 내용을 입력해주세요."); return; }
+    if(data.mode === "감사" || data.category === "감사"){ data.mode="감사"; data.category="감사"; data.status="완료"; }
+    try{
+      clearForm(false);
+      toast("저장 중입니다.");
+      await setDoc(doc(db,C.prayers,data.id),data);
+      toast("저장되었습니다.");
+    }catch(err){ toast("저장 오류: "+err.message); }
+  }
+
+  function clearForm(resetDate=true){
+    if(resetDate){ el("entryDate").value = todayValue(); updateDateDisplay("entryDate","dateDisplay"); }
+    setChoice("mode","간구"); setChoice("category","기도제목"); setChoice("status","기도중"); setChoice("importance","보통");
+    ["title","content","tags","responseContent"].forEach(id => el(id).value = "");
+    el("responseDate").value = todayValue();
+    updateResponseFields();
+  }
+
+  function loadOpenPrayers(force=false){
+    const entries = prayers.filter(p => p.mode !== "감사" && (p.status === "기도중" || p.status === "보류"));
+    renderList("openList", entries, "현재 기도중 또는 보류 상태의 기록이 없습니다.", true);
+  }
+
+  function loadToday(force=false){
+    const entries = prayers.filter(p => p.date === todayValue());
+    renderList("todayList", entries, "오늘 기록이 아직 없습니다.");
+  }
+
+  function quickPast(amount,unit){
+    el("pastAmount").value=amount; el("pastUnit").value=unit;
+    el("pastRange").value = unit === "day" ? "0" : unit === "week" ? "3" : "7";
+    loadPast();
+  }
+
+  function loadPast(){
+    const amount = Number(value("pastAmount") || 1);
+    const unit = value("pastUnit");
+    const rangeDays = Number(value("pastRange") || 0);
+    const category = value("pastCategory");
+    const target = subtractDate(new Date(), amount, unit);
+    const start = addDays(target, -rangeDays);
+    const end = addDays(target, rangeDays);
+    const entries = prayers.filter(p => {
+      const d = parseDate(p.date);
+      return d >= start && d <= end && (category === "전체" || p.category === category);
+    });
+    const targetDate = dateValue(target), startDate = dateValue(start), endDate = dateValue(end);
+    el("pastInfo").innerHTML = `<div class="notice"><b>${amount}${unitLabel(unit)} / ${rangeDays ? "전후 "+rangeDays+"일" : "정확히 그날"}</b><br>기준일: ${formatDateWithDay(targetDate)}<br>조회범위: ${rangeDays ? formatDateWithDay(startDate)+" ~ "+formatDateWithDay(endDate) : formatDateWithDay(targetDate)}<br>검색결과: ${entries.length}개</div>`;
+    renderList("pastList", entries, "해당 기간의 기록이 없습니다.");
+  }
+
+  function searchPrayer(){
+    const keyword = value("searchKeyword").toLowerCase();
+    const mode = value("searchMode"), category = value("searchCategory"), status = value("searchStatus"), tag = value("searchTag").toLowerCase();
+    const from = value("dateFrom") ? parseDate(value("dateFrom")) : null;
+    const to = value("dateTo") ? parseDate(value("dateTo")) : null;
+    const entries = prayers.filter(p => {
+      const text = [p.mode,p.category,p.title,p.content,p.tags,p.status,p.responseContent].join(" ").toLowerCase();
+      const d = parseDate(p.date);
+      return (!keyword || text.includes(keyword)) && (!tag || String(p.tags||"").toLowerCase().includes(tag)) && (mode==="전체" || p.mode===mode) && (category==="전체" || p.category===category) && (status==="전체" || p.status===status) && (!from || d >= from) && (!to || d <= to);
+    });
+    el("searchResultInfo").innerHTML = `<div class="notice">검색결과: ${entries.length}개</div>`;
+    renderList("searchList", entries, "검색 결과가 없습니다.");
+  }
+
+  function resetSearch(){
+    ["searchKeyword","searchTag","dateFrom","dateTo"].forEach(id=>el(id).value="");
+    el("searchMode").value="전체"; el("searchCategory").value="전체"; el("searchStatus").value="전체";
+    el("searchResultInfo").innerHTML=""; el("searchList").innerHTML="";
+  }
+
+  function renderList(targetId, entries, emptyText, showActions=false){
+    const target = el(targetId);
+    if(!entries.length){ target.innerHTML = `<div class="empty">${escapeHtml(emptyText)}</div>`; return; }
+    entries.forEach(item => prayerItemMap[item.id] = item);
+    target.innerHTML = entries.map(item => renderEntry(item, showActions)).join("");
+  }
+
+  function renderEntry(item, showActions){
+    const tags = item.tags ? `<div class="entry-tags"># ${escapeHtml(item.tags).replaceAll(","," #")}</div>` : "";
+    const actions = showActions ? `<div class="button-row four"><button class="btn blue small" onclick="openPartialModal('${escapeJs(item.id)}')">💬 부분응답 ${countPartials(item.id)}</button><button class="btn secondary small" onclick="openEditPrayerModalById('${escapeJs(item.id)}')">수정</button><button class="btn green small" onclick="changeStatus('${escapeJs(item.id)}','응답됨',this)">응답완료</button><button class="btn red small" onclick="changeStatus('${escapeJs(item.id)}','종료',this)">종료</button></div>` : "";
+    return `<article class="entry" data-id="${escapeHtml(item.id)}"><div class="entry-top"><div><div class="entry-date">${escapeHtml(formatDateWithDay(item.date))} ${escapeHtml(item.time||"")}</div><div class="entry-title">${escapeHtml(item.title||"(제목 없음)")}</div></div><span class="badge ${getBadgeClass(item.status)}">${escapeHtml(item.status||"")}</span></div><div class="entry-content">${escapeHtml(item.content||"")}</div><div class="entry-tags">${escapeHtml(item.mode||"")} ${item.category ? " · "+escapeHtml(item.category) : ""} ${item.importance ? " · "+escapeHtml(item.importance) : ""}</div>${tags}${actions}</article>`;
+  }
+
+  async function changeStatus(id,status,btn){
+    let responseContent="", responseDate=todayValue();
+    if(status === "응답됨"){
+      responseContent = prompt("응답 내용을 간단히 적어주세요.","");
+      if(responseContent === null) return;
+    }
+    try{
+      const item = prayers.find(p=>p.id===id);
+      if(!item) return;
+      const data = {...item, status, responseDate: status==="응답됨" ? responseDate : item.responseDate || "", responseContent: responseContent || item.responseContent || "", updatedAt: nowStamp()};
+      await setDoc(doc(db,C.prayers,id), data, {merge:true});
+      toast("상태가 변경되었습니다.");
+    }catch(err){ toast("상태 변경 오류: "+err.message); }
+  }
+
+  function openEditPrayerModalById(id){
+    const item = prayerItemMap[id];
+    if(!item){ toast("수정할 기록을 찾지 못했습니다."); return; }
+    el("editPrayerId").value=item.id; el("editPrayerDate").value=item.date || todayValue(); el("editPrayerCategory").value=item.category || "기도제목"; el("editPrayerStatus").value=item.status || "기도중"; el("editPrayerTitle").value=item.title || ""; el("editPrayerContent").value=item.content || ""; el("editPrayerTags").value=item.tags || "";
+    updateDateDisplay("editPrayerDate","editPrayerDateDisplay"); el("editPrayerModal").classList.add("show");
+  }
+
+  async function savePrayerEdit(){
+    const id = value("editPrayerId");
+    const old = prayers.find(p=>p.id===id);
+    if(!old) return;
+    const data = {...old, date:value("editPrayerDate"), category:value("editPrayerCategory"), status:value("editPrayerStatus"), title:value("editPrayerTitle"), content:value("editPrayerContent"), tags:value("editPrayerTags"), updatedAt:nowStamp()};
+    if(!data.title && !data.content){ toast("제목이나 내용을 입력해주세요."); return; }
+    await setDoc(doc(db,C.prayers,id),data,{merge:true});
+    closeEditPrayerModal(); toast("수정되었습니다.");
+  }
+
+  function closeEditPrayerModal(){ el("editPrayerModal").classList.remove("show"); }
+
+  function openPartialModal(prayerId){
+    currentPartialPrayerId = prayerId;
+    el("partialPrayerId").value = prayerId;
+    resetPartialForm();
+    el("partialModal").classList.add("show");
+    renderPartialResponses();
+  }
+  function closePartialModal(){ el("partialModal").classList.remove("show"); }
+  function resetPartialForm(){ el("partialEditId").value=""; el("partialDate").value=todayValue(); el("partialContent").value=""; el("partialSaveBtn").textContent="부분응답 저장"; updateDateDisplay("partialDate","partialDateDisplay"); }
+
+  async function savePartialResponseFromModal(){
+    const prayerId=value("partialPrayerId"), editId=value("partialEditId"), date=value("partialDate"), content=value("partialContent");
+    if(!content){ toast("부분응답 내용을 입력해주세요."); return; }
+    const id = editId || createLocalId("PARTIAL");
+    const old = partialResponses.find(x=>x.id===id) || {};
+    const data = {...old, id, prayerId, date, time: old.time || timeValue(), content, createdAt: old.createdAt || nowStamp(), updatedAt: nowStamp()};
+    await setDoc(doc(db,C.partials,id),data,{merge:true});
+    resetPartialForm(); toast(editId ? "부분응답이 수정되었습니다." : "부분응답이 기록되었습니다.");
+  }
+
+  function editPartialItem(id){
+    const item = partialResponses.find(x=>x.id===id); if(!item) return;
+    el("partialEditId").value=item.id; el("partialDate").value=item.date || todayValue(); el("partialContent").value=item.content || ""; el("partialSaveBtn").textContent="부분응답 수정"; updateDateDisplay("partialDate","partialDateDisplay");
+  }
+  async function deletePartialItem(id){ if(!confirm("부분응답을 삭제할까요?")) return; await deleteDoc(doc(db,C.partials,id)); toast("삭제되었습니다."); }
+
+  function renderPartialResponses(){
+    const box = el("partialList");
+    const entries = partialResponses.filter(x=>x.prayerId===currentPartialPrayerId);
+    if(!entries.length){ box.innerHTML = `<div class="empty">아직 기록된 부분응답이 없습니다.</div>`; return; }
+    box.innerHTML = entries.map(item=>`<div class="partial-item"><div class="partial-date">💬 ${escapeHtml(formatDateWithDay(item.date))} ${escapeHtml(item.time||"")}</div><div class="partial-content">${escapeHtml(item.content||"")}</div><div class="comment-actions"><button class="tiny-btn" onclick="editPartialItem('${escapeJs(item.id)}')">수정</button><button class="tiny-btn red" onclick="deletePartialItem('${escapeJs(item.id)}')">삭제</button></div></div>`).join("");
+  }
+
+  async function saveQuestionFast(){
+    const data = {id:createLocalId("QUESTION"), date:todayValue(), time:timeValue(), qType:value("questionType"), content:value("questionContent"), status:"진행중", doneDate:"", createdAt:nowStamp(), updatedAt:nowStamp()};
+    if(!data.content){ toast("질문 내용을 입력해주세요."); return; }
+    el("questionContent").value="";
+    await setDoc(doc(db,C.questions,data.id),data);
+    toast("질문이 저장되었습니다.");
+  }
+
+  function loadQuestions(force=false){
+    const status=value("questionFilterStatus"), qType=value("questionFilterType");
+    const entries = questions.filter(q => (status==="전체" || q.status===status) && (qType==="전체" || q.qType===qType));
+    renderQuestions(entries);
+  }
+
+  function renderQuestions(entries){
+    const box = el("questionList");
+    if(!entries.length){ box.innerHTML = `<div class="empty">아직 질문이 없습니다.</div>`; return; }
+    entries.forEach(item=>questionItemMap[item.id]=item);
+    box.innerHTML = entries.map(item=>`<article class="entry"><div class="entry-top"><div><div class="entry-date">${escapeHtml(formatDateWithDay(item.date))} ${escapeHtml(item.time||"")}</div><div class="entry-title">❔ ${escapeHtml(item.qType||"질문")} · 💬 ${countQuestionReplies(item.id)}</div></div><span class="badge ${item.status==="완료" ? "answer" : "pray"}">${escapeHtml(item.status||"")}</span></div><div class="entry-content">${escapeHtml(item.content||"")}</div><div class="button-row four"><button class="btn blue small" onclick="openQuestionReplyModal('${escapeJs(item.id)}')">💬 답글</button><button class="btn green small" onclick="completeQuestionNow('${escapeJs(item.id)}')">완료</button><button class="btn secondary small" onclick="editQuestionPromptById('${escapeJs(item.id)}')">수정</button><button class="btn red small" onclick="deleteQuestionNow('${escapeJs(item.id)}')">삭제</button></div></article>`).join("");
+  }
+
+  function editQuestionPromptById(id){
+    const item=questionItemMap[id]; if(!item) return;
+    const content=prompt("질문 내용을 수정하세요.", item.content || "");
+    if(content === null) return;
+    setDoc(doc(db,C.questions,id), {...item, content, updatedAt:nowStamp()}, {merge:true});
+  }
+  async function completeQuestionNow(id){ const item=questions.find(q=>q.id===id); if(!item) return; await setDoc(doc(db,C.questions,id), {...item, status:"완료", doneDate:todayValue(), updatedAt:nowStamp()}, {merge:true}); toast("질문이 완료되었습니다."); }
+  async function deleteQuestionNow(id){ if(!confirm("질문을 삭제할까요?")) return; await deleteDoc(doc(db,C.questions,id)); toast("질문이 삭제되었습니다."); }
+
+  function openQuestionReplyModal(questionId){
+    currentQuestionId=questionId; el("questionReplyQuestionId").value=questionId; resetQuestionReplyForm(); el("questionReplyModal").classList.add("show"); renderQuestionReplies();
+  }
+  function closeQuestionReplyModal(){ el("questionReplyModal").classList.remove("show"); }
+  function resetQuestionReplyForm(){ el("questionReplyEditId").value=""; el("questionReplyDate").value=todayValue(); el("questionReplyContent").value=""; el("questionReplySaveBtn").textContent="답글 저장"; updateDateDisplay("questionReplyDate","questionReplyDateDisplay"); }
+  async function saveQuestionReplyFromModal(){
+    const questionId=value("questionReplyQuestionId"), editId=value("questionReplyEditId"), date=value("questionReplyDate"), content=value("questionReplyContent");
+    if(!content){ toast("답글 내용을 입력해주세요."); return; }
+    const id=editId || createLocalId("QREPLY");
+    const old=questionReplies.find(x=>x.id===id) || {};
+    const data={...old,id,questionId,date,time:old.time || timeValue(),content,createdAt:old.createdAt || nowStamp(),updatedAt:nowStamp()};
+    await setDoc(doc(db,C.qReplies,id),data,{merge:true});
+    resetQuestionReplyForm(); toast(editId ? "답글이 수정되었습니다." : "답글이 저장되었습니다.");
+  }
+  function editQuestionReplyItem(id){ const item=questionReplies.find(x=>x.id===id); if(!item) return; el("questionReplyEditId").value=item.id; el("questionReplyDate").value=item.date || todayValue(); el("questionReplyContent").value=item.content || ""; el("questionReplySaveBtn").textContent="답글 수정"; updateDateDisplay("questionReplyDate","questionReplyDateDisplay"); }
+  async function deleteQuestionReplyItem(id){ if(!confirm("답글을 삭제할까요?")) return; await deleteDoc(doc(db,C.qReplies,id)); toast("답글이 삭제되었습니다."); }
+  function renderQuestionReplies(){
+    const box=el("questionReplyList"); const entries=questionReplies.filter(x=>x.questionId===currentQuestionId);
+    if(!entries.length){ box.innerHTML=`<div class="empty">아직 답글이 없습니다.</div>`; return; }
+    box.innerHTML=entries.map(item=>`<div class="partial-item"><div class="partial-date">💬 ${escapeHtml(formatDateWithDay(item.date))} ${escapeHtml(item.time||"")}</div><div class="partial-content">${escapeHtml(item.content||"")}</div><div class="comment-actions"><button class="tiny-btn" onclick="editQuestionReplyItem('${escapeJs(item.id)}')">수정</button><button class="tiny-btn red" onclick="deleteQuestionReplyItem('${escapeJs(item.id)}')">삭제</button></div></div>`).join("");
+  }
+
+  function openUpdateCenter(){ el("updateModal").classList.add("show"); renderUpdateCenter(); }
+  function closeUpdateCenter(){ el("updateModal").classList.remove("show"); }
+  function renderUpdateCenter(){
+    el("updateCurrentBox").innerHTML = `<b>현재 버전</b> ${APP_VERSION}<br><span style="color:var(--sub)">GitHub index.html + Firestore 실시간 동기화 버전입니다. Ctrl+G로 GPT 대화방을 열 수 있습니다.</span>`;
+    renderUpdateHistory(updateHistory); renderUpdateMemos(updateMemos);
+  }
+  function renderUpdateHistory(list){
+    el("updateHistoryList").innerHTML = (list||[]).map(item=>`<div class="update-item"><div class="update-title">${escapeHtml(item.version||"")} · ${escapeHtml(formatDateWithDay(item.date||""))}</div><div style="font-weight:950">${escapeHtml(item.title||"")}</div><div class="update-content">${escapeHtml(item.content||"")}</div></div>`).join("") || `<div class="empty">업데이트 내역이 없습니다.</div>`;
+  }
+  function renderUpdateMemos(list){
+    el("updateMemoList").innerHTML = (list||[]).map(item=>`<div class="update-item"><div class="update-title">${escapeHtml(item.title || "(제목 없음)")}<span class="update-status">${escapeHtml(item.status||"")}</span></div><div class="entry-date">${escapeHtml(formatDateWithDay(item.date||""))} ${escapeHtml(item.time||"")}</div><div class="update-content">${escapeHtml(item.content||"")}</div><div class="comment-actions"><button class="tiny-btn" onclick="changeUpdateMemoStatus('${escapeJs(item.id)}','예정')">예정</button><button class="tiny-btn" onclick="changeUpdateMemoStatus('${escapeJs(item.id)}','진행중')">진행</button><button class="tiny-btn" onclick="changeUpdateMemoStatus('${escapeJs(item.id)}','완료')">완료</button><button class="tiny-btn red" onclick="deleteUpdateMemoNow('${escapeJs(item.id)}')">삭제</button></div></div>`).join("") || `<div class="empty">아직 적어둔 업데이트 메모가 없습니다.</div>`;
+  }
+  async function saveUpdateMemoFast(){
+    const data={id:createLocalId("UPDATEMEMO"),date:todayValue(),time:timeValue(),status:value("updateMemoStatus"),title:value("updateMemoTitle"),content:value("updateMemoContent"),createdAt:nowStamp(),updatedAt:nowStamp()};
+    if(!data.title && !data.content){ toast("업데이트 메모를 입력해주세요."); return; }
+    el("updateMemoTitle").value=""; el("updateMemoContent").value=""; el("updateMemoStatus").value="예정";
+    await setDoc(doc(db,C.updateMemos,data.id),data); toast("업데이트 메모가 저장되었습니다.");
+  }
+  async function changeUpdateMemoStatus(id,status){ const item=updateMemos.find(x=>x.id===id); if(!item) return; await setDoc(doc(db,C.updateMemos,id), {...item,status,updatedAt:nowStamp()}, {merge:true}); }
+  async function deleteUpdateMemoNow(id){ if(!confirm("업데이트 메모를 삭제할까요?")) return; await deleteDoc(doc(db,C.updateMemos,id)); toast("삭제되었습니다."); }
+
+  function seedInitialDataManually(){ seedInitialDataOnce(true, true); }
+
+  function openGPT(){ window.open(GPT_URL, "_blank", "noopener,noreferrer"); }
+  function updateDateDisplay(inputId,displayId){ const date=value(inputId); el(displayId).textContent = date ? formatDateWithDay(date) : "날짜 선택"; }
+  function openDatePicker(inputId){ const input=el(inputId); if(input.showPicker) input.showPicker(); else { input.focus(); input.click(); } }
+  function openInfo(title,text){ el("infoTitle").textContent=title; el("infoText").textContent=text; el("infoModal").classList.add("show"); }
+  function closeInfo(){ el("infoModal").classList.remove("show"); }
+  function openHelp(){ el("helpModal").classList.add("show"); }
+  function closeHelp(){ el("helpModal").classList.remove("show"); }
+  function closeModalByBg(event,id){ if(event.target.id===id) event.target.classList.remove("show"); }
+  function isOpen(id){ return el(id).classList.contains("show"); }
+  function updateSync(text,state){ el("syncStatus").innerHTML = `<span class="sync-dot ${state||""}"></span>${escapeHtml(text)}`; }
+  function toast(message){ const t=el("toast"); t.textContent=message; t.style.display="block"; clearTimeout(window.__toastTimer); window.__toastTimer=setTimeout(()=>t.style.display="none",2200); }
+
+  function countPartials(prayerId){ return partialResponses.filter(x=>x.prayerId===prayerId).length; }
+  function countQuestionReplies(questionId){ return questionReplies.filter(x=>x.questionId===questionId).length; }
+  function sortItems(arr){ return [...arr].sort((a,b)=>(String(b.date||"")+String(b.time||"")).localeCompare(String(a.date||"")+String(a.time||""))); }
+  function sortUpdateMemos(arr){ const order={예정:1,진행중:2,완료:3}; return [...arr].sort((a,b)=>(order[a.status]||99)-(order[b.status]||99) || (String(b.date||"")+String(b.time||"")).localeCompare(String(a.date||"")+String(a.time||""))); }
+  function sortVersion(arr){ return [...arr].sort((a,b)=>compareVersion(b.version,a.version)); }
+  function compareVersion(a,b){ const pa=String(a||"").replace("v","").split(".").map(Number), pb=String(b||"").replace("v","").split(".").map(Number); for(let i=0;i<Math.max(pa.length,pb.length);i++){ if((pa[i]||0)!==(pb[i]||0)) return (pa[i]||0)-(pb[i]||0); } return 0; }
+  function getBadgeClass(status){ if(status==="기도중") return "pray"; if(status==="응답됨") return "answer"; if(status==="보류") return "hold"; if(status==="종료") return "end"; return ""; }
+  function unitLabel(unit){ return ({day:"일 전",week:"주 전",month:"개월 전",year:"년 전"})[unit] || ""; }
+  function todayValue(){ return dateValue(new Date()); }
+  function dateValue(d){ return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`; }
+  function timeValue(){ const d=new Date(); return `${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}:${String(d.getSeconds()).padStart(2,"0")}`; }
+  function nowStamp(){ return `${todayValue()} ${timeValue()}`; }
+  function parseDate(s){ const [y,m,d]=String(s||todayValue()).split("-").map(Number); return new Date(y,m-1,d); }
+  function addDays(date,days){ const d=new Date(date.getFullYear(),date.getMonth(),date.getDate()); d.setDate(d.getDate()+days); return d; }
+  function subtractDate(date,amount,unit){ const d=new Date(date.getFullYear(),date.getMonth(),date.getDate()); if(unit==="day")d.setDate(d.getDate()-amount); if(unit==="week")d.setDate(d.getDate()-amount*7); if(unit==="month")d.setMonth(d.getMonth()-amount); if(unit==="year")d.setFullYear(d.getFullYear()-amount); return d; }
+  function formatDateWithDay(dateString){ if(!dateString) return ""; const [y,m,d]=String(dateString).split("-"); if(!y||!m||!d) return dateString; const dt=new Date(Number(y),Number(m)-1,Number(d)); return `${y}-${m}-${d}(${["일","월","화","수","목","금","토"][dt.getDay()]})`; }
+  function createLocalId(prefix){ return `${prefix}-LOCAL-${Date.now()}-${Math.floor(Math.random()*100000)}`; }
+  function value(id){ return (el(id)?.value || "").trim(); }
+  function el(id){ return document.getElementById(id); }
+  function escapeHtml(text){ return String(text||"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;"); }
+  function escapeJs(text){ return String(text||"").replaceAll("\\","\\\\").replaceAll("'","\\'").replaceAll("\n","\\n").replaceAll("\r",""); }
+
+  Object.assign(window,{showPage,setChoice,savePrayerFast,clearForm,loadOpenPrayers,loadToday,quickPast,loadPast,searchPrayer,resetSearch,openPartialModal,openEditPrayerModalById,changeStatus,savePrayerEdit,closeEditPrayerModal,savePartialResponseFromModal,resetPartialForm,closePartialModal,editPartialItem,deletePartialItem,saveQuestionFast,loadQuestions,openQuestionReplyModal,completeQuestionNow,editQuestionPromptById,deleteQuestionNow,closeQuestionReplyModal,resetQuestionReplyForm,saveQuestionReplyFromModal,editQuestionReplyItem,deleteQuestionReplyItem,openUpdateCenter,closeUpdateCenter,saveUpdateMemoFast,changeUpdateMemoStatus,deleteUpdateMemoNow,seedInitialDataManually,openGPT,updateDateDisplay,openDatePicker,openInfo,closeInfo,openHelp,closeHelp,closeModalByBg});
+</script>
+</body>
+</html>
