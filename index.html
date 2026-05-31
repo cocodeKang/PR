@@ -76,7 +76,15 @@
     .modal{width:100%;max-width:460px;max-height:82vh;overflow-y:auto;background:#fff;border-radius:18px;padding:15px;box-shadow:0 18px 50px rgba(0,0,0,.22)}
     .modal h3{margin:0 0 9px;font-size:1.05rem}.modal-text{font-size:.86rem;white-space:pre-wrap}.help-list{display:grid;gap:7px;font-size:.82rem}.help-item{background:#f8f4ef;border-radius:12px;padding:8px 9px}.help-item b{color:var(--accent)}
     .toast{position:fixed;left:50%;bottom:56px;transform:translateX(-50%);z-index:300;display:none;max-width:calc(100vw - 24px);background:rgba(31,41,51,.94);color:#fff;padding:9px 12px;border-radius:999px;text-align:center;font-size:.78rem}
-    @media(min-width:920px){main{display:grid;grid-template-columns:1fr;max-width:920px}.card{padding:14px}.bottom-nav-inner{max-width:920px}.button-row.four{grid-template-columns:repeat(4,1fr)}}
+    .version-badge{display:inline-flex;align-items:center;vertical-align:middle;margin-left:5px;padding:2px 7px;border-radius:999px;background:#efe7de;color:var(--accent);font-size:.64rem;font-weight:950;letter-spacing:0}
+    .kbd{display:inline-flex;align-items:center;justify-content:center;min-width:28px;padding:2px 6px;border-radius:7px;background:#111827;color:#fff;font-size:.72rem;font-weight:950;margin-right:5px}
+    .shortcut-grid{display:grid;gap:7px}.shortcut-row{background:#f8f4ef;border-radius:12px;padding:8px 9px;font-size:.82rem}
+    .update-editor-panel{display:none;margin-top:10px;padding:10px;border:1px solid var(--line);border-radius:14px;background:#fffaf4}.update-editor-panel.open{display:block}
+    .editor-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px}.editor-head b{color:var(--accent)}
+    .autosave-state{font-size:.72rem;color:var(--sub);font-weight:900;margin-top:5px;text-align:right}
+    @media(min-width:900px){
+      html{font-size:16px}body{padding-bottom:0;padding-left:112px}.header-inner{padding:13px 20px 12px}h1{font-size:1.45rem}.today-text{font-size:.86rem}main{max-width:1180px;padding:20px 24px}.card{padding:18px;margin-bottom:16px;border-radius:22px}.stats{gap:12px;margin-bottom:16px}.stat{padding:14px 4px;border-radius:18px}.stat b{font-size:1.42rem}.stat span{font-size:.78rem}.section-title h2{font-size:1.35rem}label{font-size:.9rem}.top-btn{font-size:.86rem;padding:8px 12px}.version-badge{font-size:.72rem;padding:3px 9px}.grid-2{gap:12px}.button-row{gap:10px}.button-row.four{grid-template-columns:repeat(4,1fr)}.entry{padding:16px;border-radius:18px}.entry-title{font-size:1.08rem}.entry-content{font-size:.96rem}.modal{max-width:620px}.bottom-nav{top:0;left:0;right:auto;bottom:auto;width:112px;height:100vh;border-top:0;border-right:1px solid rgba(0,0,0,.08);padding:12px 8px;background:rgba(255,255,255,.98)}.bottom-nav-inner{display:flex;flex-direction:column;gap:8px;height:100%;max-width:none}.nav-btn{min-height:76px;border-radius:18px;background:#fff;box-shadow:var(--shadow);font-size:.84rem;padding:9px 6px}.nav-btn b{font-size:1.55rem;margin-bottom:5px}.nav-btn.active{background:#efe7de;color:var(--accent);outline:2px solid rgba(124,92,59,.12)}textarea{min-height:116px}.chip-wrap,.chips{flex-wrap:wrap;overflow:visible}.mini-chip,.chip{font-size:.86rem;padding:8px 12px}
+    }
     @media(max-width:380px){html{font-size:14px}main{padding:6px}.card{padding:10px}.compact-row{grid-template-columns:58px 1fr}.stat span{font-size:.56rem}.top-btn{font-size:.66rem;padding:6px 7px}}
   </style>
 </head>
@@ -86,7 +94,7 @@
   <div class="header-inner">
     <div class="title-row">
       <div>
-        <h1>기도일지</h1>
+        <h1>기도일지 <span id="versionBadge" class="version-badge">v2.1.0</span></h1>
         <div class="today-text" id="todayText"></div>
       </div>
       <div class="top-actions">
@@ -194,9 +202,9 @@
 <div class="bottom-nav"><div class="bottom-nav-inner"><button class="nav-btn active" onclick="showPage('write')"><b>＋</b>기록</button><button class="nav-btn" onclick="showPage('open')"><b>🙏</b>기도중</button><button class="nav-btn" onclick="showPage('today')"><b>☀</b>오늘</button><button class="nav-btn" onclick="showPage('past')"><b>↩</b>과거</button><button class="nav-btn" onclick="showPage('search')"><b>⌕</b>검색</button><button class="nav-btn" onclick="showPage('questions')"><b>❔</b>질문</button></div></div>
 
 <div class="modal-bg" id="infoModal" onclick="closeModalByBg(event,'infoModal')"><div class="modal"><h3 id="infoTitle"></h3><div class="modal-text" id="infoText"></div><button class="btn secondary" style="margin-top:12px" onclick="closeInfo()">닫기</button></div></div>
-<div class="modal-bg" id="helpModal" onclick="closeModalByBg(event,'helpModal')"><div class="modal"><h3>도움말</h3><div class="help-list"><div class="help-item"><b>🔥 Firestore</b> 모든 기록은 Firebase Firestore에 저장되고 실시간 동기화됩니다.</div><div class="help-item"><b>🤖 GPT</b> 상단 GPT 버튼 또는 Ctrl+G로 지정한 ChatGPT 대화방을 엽니다.</div><div class="help-item"><b>📦 업데이트</b> 버전별 수정 내역과 앞으로 추가할 기능을 적어둡니다.</div><div class="help-item"><b>💬 부분응답</b> 완료된 응답은 아니지만 기도 중 보인 작은 응답을 댓글처럼 기록합니다.</div></div><button class="btn secondary" style="margin-top:12px" onclick="closeHelp()">닫기</button></div></div>
+<div class="modal-bg" id="helpModal" onclick="closeModalByBg(event,'helpModal')"><div class="modal"><h3>도움말 · 단축키</h3><div class="shortcut-grid"><div class="shortcut-row"><span class="kbd">Ctrl+U</span><b>업데이트 센터</b> 열기/닫기</div><div class="shortcut-row"><span class="kbd">Ctrl+/</span><b>도움말</b> 열기/닫기</div><div class="shortcut-row"><span class="kbd">Ctrl+G</span><b>GPT 대화방</b> 열기</div><div class="shortcut-row"><span class="kbd">Ctrl+←</span><b>왼쪽 탭</b>으로 이동</div><div class="shortcut-row"><span class="kbd">Ctrl+→</span><b>오른쪽 탭</b>으로 이동</div></div><div class="help-list" style="margin-top:10px"><div class="help-item"><b>🔥 Firestore</b> 모든 기록은 Firebase Firestore에 저장되고 실시간 동기화됩니다.</div><div class="help-item"><b>📦 업데이트</b> 앞으로 고칠 내용은 메모 창에서 입력하면 별도 저장 없이 자동 저장됩니다.</div><div class="help-item"><b>💾 업데이트 백업</b> 반영 완료한 메모는 업데이트 내역으로 백업한 뒤 메모를 초기화할 수 있습니다.</div><div class="help-item"><b>💬 부분응답</b> 완료된 응답은 아니지만 기도 중 보인 작은 응답을 댓글처럼 기록합니다.</div></div><button class="btn secondary" style="margin-top:12px" onclick="closeHelp()">닫기</button></div></div>
 
-<div class="modal-bg" id="updateModal" onclick="closeModalByBg(event,'updateModal')"><div class="modal"><h3>📦 업데이트 센터</h3><div class="update-current" id="updateCurrentBox"></div><button class="btn blue" onclick="seedInitialDataManually()">엑셀 백업 데이터 Firestore로 가져오기</button><div class="notice" style="margin-top:8px">엑셀 백업 포함: 기도 10개, 부분응답 15개, 질문 6개, 질문답글 2개, 업데이트내역 9개, 업데이트메모 5개. 이미 있는 ID는 덮어쓰지 않습니다.</div><label>향후 업데이트 상태</label><select id="updateMemoStatus"><option value="예정">예정</option><option value="진행중">진행중</option><option value="완료">완료</option></select><label>업데이트 메모 제목</label><input id="updateMemoTitle" placeholder="예: 기도 통계 그래프 추가"><label>업데이트 메모 내용</label><textarea id="updateMemoContent" placeholder="앞으로 수정하거나 추가하고 싶은 기능을 적어두세요."></textarea><button class="btn" style="margin-top:10px" onclick="saveUpdateMemoFast()">업데이트 메모 저장</button><h3 style="margin-top:18px">앞으로 업데이트할 것</h3><div id="updateMemoList" class="update-list"></div><h3 style="margin-top:18px">버전별 업데이트 내역</h3><div id="updateHistoryList" class="update-list"></div><button class="btn secondary" style="margin-top:14px" onclick="closeUpdateCenter()">닫기</button></div></div>
+<div class="modal-bg" id="updateModal" onclick="closeModalByBg(event,'updateModal')"><div class="modal"><h3>📦 업데이트 센터</h3><div class="update-current" id="updateCurrentBox"></div><div class="button-row"><button class="btn blue" onclick="openUpdateMemoEditor(true)">✍️ 업데이트 메모</button><button class="btn green" onclick="archiveUpdateMemos()">💾 반영 백업/초기화</button></div><button class="btn secondary" style="margin-top:8px" onclick="seedInitialDataManually()">엑셀 백업 데이터 Firestore로 가져오기</button><div class="notice" style="margin-top:8px">메모는 입력하는 동안 자동 저장됩니다. 반영한 메모는 <b>반영 백업/초기화</b> 버튼으로 업데이트 내역에 저장한 뒤 메모 목록을 비울 수 있습니다.</div><div id="updateMemoEditorPanel" class="update-editor-panel"><div class="editor-head"><b>업데이트 메모 자동저장</b><button class="tiny-btn" onclick="closeUpdateMemoEditor()">닫기</button></div><input type="hidden" id="updateMemoEditId"><label>상태</label><select id="updateMemoStatus"><option value="예정">예정</option><option value="진행중">진행중</option><option value="완료">완료</option></select><label>제목</label><input id="updateMemoTitle" placeholder="예: 기도 통계 그래프 추가"><label>내용</label><textarea id="updateMemoContent" placeholder="앞으로 수정하거나 추가하고 싶은 기능을 적어두세요."></textarea><div class="autosave-state" id="updateMemoSaveState">입력하면 자동 저장됩니다.</div><div class="button-row"><button class="btn secondary" onclick="startNewUpdateMemo()">새 메모 시작</button><button class="btn secondary" onclick="closeUpdateMemoEditor()">메모창 닫기</button></div></div><h3 style="margin-top:18px">앞으로 업데이트할 것</h3><div id="updateMemoList" class="update-list"></div><h3 style="margin-top:18px">버전별 업데이트 내역</h3><div id="updateHistoryList" class="update-list"></div><button class="btn secondary" style="margin-top:14px" onclick="closeUpdateCenter()">닫기</button></div></div>
 
 <div class="modal-bg" id="editPrayerModal" onclick="closeModalByBg(event,'editPrayerModal')"><div class="modal"><h3>기도 수정</h3><input type="hidden" id="editPrayerId"><input class="hidden-date" type="date" id="editPrayerDate" onchange="updateDateDisplay('editPrayerDate','editPrayerDateDisplay')"><div class="compact-row"><div class="compact-label">날짜</div><div class="date-row"><button type="button" class="date-display" id="editPrayerDateDisplay" onclick="openDatePicker('editPrayerDate')"></button><button type="button" class="date-icon" onclick="openDatePicker('editPrayerDate')">📅</button></div></div><label>카테고리</label><select id="editPrayerCategory"><option value="기도제목">기도제목</option><option value="중보기도">중보기도</option><option value="가족">가족</option><option value="사역/교회">사역/교회</option><option value="건강">건강</option><option value="기타">기타</option></select><label>상태</label><select id="editPrayerStatus"><option value="기도중">기도중</option><option value="보류">보류</option><option value="응답됨">응답됨</option><option value="종료">종료</option></select><label>제목</label><input id="editPrayerTitle"><label>내용</label><textarea id="editPrayerContent"></textarea><label>태그</label><input id="editPrayerTags"><div class="button-row"><button class="btn" onclick="savePrayerEdit()">수정 저장</button><button class="btn secondary" onclick="closeEditPrayerModal()">닫기</button></div></div></div>
 
@@ -775,9 +783,17 @@
   import { getAnalytics, isSupported } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-analytics.js";
   import { getFirestore, enableIndexedDbPersistence, collection, doc, setDoc, deleteDoc, onSnapshot, getDoc, writeBatch } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
 
-  const APP_VERSION = "v2.0.0";
+  const APP_VERSION = "v2.1.0";
   const GPT_URL = "https://chatgpt.com/c/6a1252df-7308-83a7-aaff-069fd773983e";
   const SEED_KEY = "prayer-firestore-seeded-v2";
+  const CURRENT_VERSION_HISTORY = {
+    id: "VER-2-1-0",
+    version: "v2.1.0",
+    date: "2026-05-31",
+    title: "PC 인터페이스·단축키·업데이트 자동저장",
+    content: "Ctrl+U 업데이트 센터, Ctrl+/ 도움말, Ctrl+G GPT, Ctrl+←/→ 탭 이동을 추가했습니다. PC에서는 좌측 사이드 탭으로 보이도록 분리했고, 업데이트 메모는 입력 즉시 Firestore에 자동 저장되며 반영 백업/초기화 기능을 추가했습니다.",
+    createdAt: "2026-05-31 00:00:00"
+  };
   const firebaseConfig = {
     apiKey: "AIzaSyAVjwl6wi65R2Rmfq-a0rp5opmKbKcI0Bw",
     authDomain: "pr-log-c3874.firebaseapp.com",
@@ -813,18 +829,36 @@
   const questionItemMap = {};
   let currentPartialPrayerId = "";
   let currentQuestionId = "";
+  let updateMemoAutosaveTimer = null;
+  let updateMemoLastSavedKey = "";
 
   document.addEventListener("DOMContentLoaded", () => {
     setToday();
+    el("versionBadge").textContent = APP_VERSION;
     updateSync("연결 중", "");
+    bindUpdateMemoAutosave();
     startRealtime();
     setTimeout(() => seedInitialDataOnce(false, false), 1000);
+    setTimeout(() => ensureCurrentVersionHistory(), 1500);
   });
 
   document.addEventListener("keydown", (e) => {
-    if (e.ctrlKey && e.key.toLowerCase() === "g") {
+    const key = e.key.toLowerCase();
+    if (e.ctrlKey && key === "g") {
       e.preventDefault();
       openGPT();
+    } else if (e.ctrlKey && key === "u") {
+      e.preventDefault();
+      toggleUpdateCenter();
+    } else if (e.ctrlKey && e.key === "/") {
+      e.preventDefault();
+      toggleHelp();
+    } else if (e.ctrlKey && e.key === "ArrowLeft") {
+      e.preventDefault();
+      moveTab(-1);
+    } else if (e.ctrlKey && e.key === "ArrowRight") {
+      e.preventDefault();
+      moveTab(1);
     }
   });
 
@@ -883,6 +917,19 @@
     }
   }
 
+
+  async function ensureCurrentVersionHistory(){
+    try{
+      const ref = doc(db, C.updateHistory, CURRENT_VERSION_HISTORY.id);
+      const snap = await getDoc(ref);
+      if (!snap.exists()){
+        await setDoc(ref, { ...CURRENT_VERSION_HISTORY, createdAt: nowStamp() }, { merge:true });
+      }
+    }catch(err){
+      console.warn("현재 버전 기록 확인 실패", err);
+    }
+  }
+
   function showPage(page){
     currentPage = page;
     ["write","open","today","past","search","questions"].forEach(name => {
@@ -892,6 +939,24 @@
       btn.classList.toggle("active", ["write","open","today","past","search","questions"][idx] === page);
     });
     renderActivePage();
+  }
+
+
+  function moveTab(delta){
+    const pages = ["write","open","today","past","search","questions"];
+    const index = Math.max(0, pages.indexOf(currentPage));
+    const next = (index + delta + pages.length) % pages.length;
+    showPage(pages[next]);
+  }
+
+  function toggleUpdateCenter(){
+    if (isOpen("updateModal")) closeUpdateCenter();
+    else openUpdateCenter();
+  }
+
+  function toggleHelp(){
+    if (isOpen("helpModal")) closeHelp();
+    else openHelp();
   }
 
   function renderActivePage(){
@@ -1174,26 +1239,112 @@
     box.innerHTML=entries.map(item=>`<div class="partial-item"><div class="partial-date">💬 ${escapeHtml(formatDateWithDay(item.date))} ${escapeHtml(item.time||"")}</div><div class="partial-content">${escapeHtml(item.content||"")}</div><div class="comment-actions"><button class="tiny-btn" onclick="editQuestionReplyItem('${escapeJs(item.id)}')">수정</button><button class="tiny-btn red" onclick="deleteQuestionReplyItem('${escapeJs(item.id)}')">삭제</button></div></div>`).join("");
   }
 
-  function openUpdateCenter(){ el("updateModal").classList.add("show"); renderUpdateCenter(); }
+  function openUpdateCenter(){
+    el("updateModal").classList.add("show");
+    renderUpdateCenter();
+  }
   function closeUpdateCenter(){ el("updateModal").classList.remove("show"); }
   function renderUpdateCenter(){
-    el("updateCurrentBox").innerHTML = `<b>현재 버전</b> ${APP_VERSION}<br><span style="color:var(--sub)">GitHub index.html + Firestore 실시간 동기화 버전입니다. Ctrl+G로 GPT 대화방을 열 수 있습니다.</span>`;
+    el("updateCurrentBox").innerHTML = `<b>현재 버전</b> ${APP_VERSION}<br><span style="color:var(--sub)">GitHub index.html + Firestore 실시간 동기화 버전입니다. Ctrl+U 업데이트, Ctrl+/ 도움말, Ctrl+G GPT, Ctrl+←/→ 탭 이동을 사용할 수 있습니다.</span>`;
     renderUpdateHistory(updateHistory); renderUpdateMemos(updateMemos);
   }
   function renderUpdateHistory(list){
     el("updateHistoryList").innerHTML = (list||[]).map(item=>`<div class="update-item"><div class="update-title">${escapeHtml(item.version||"")} · ${escapeHtml(formatDateWithDay(item.date||""))}</div><div style="font-weight:950">${escapeHtml(item.title||"")}</div><div class="update-content">${escapeHtml(item.content||"")}</div></div>`).join("") || `<div class="empty">업데이트 내역이 없습니다.</div>`;
   }
   function renderUpdateMemos(list){
-    el("updateMemoList").innerHTML = (list||[]).map(item=>`<div class="update-item"><div class="update-title">${escapeHtml(item.title || "(제목 없음)")}<span class="update-status">${escapeHtml(item.status||"")}</span></div><div class="entry-date">${escapeHtml(formatDateWithDay(item.date||""))} ${escapeHtml(item.time||"")}</div><div class="update-content">${escapeHtml(item.content||"")}</div><div class="comment-actions"><button class="tiny-btn" onclick="changeUpdateMemoStatus('${escapeJs(item.id)}','예정')">예정</button><button class="tiny-btn" onclick="changeUpdateMemoStatus('${escapeJs(item.id)}','진행중')">진행</button><button class="tiny-btn" onclick="changeUpdateMemoStatus('${escapeJs(item.id)}','완료')">완료</button><button class="tiny-btn red" onclick="deleteUpdateMemoNow('${escapeJs(item.id)}')">삭제</button></div></div>`).join("") || `<div class="empty">아직 적어둔 업데이트 메모가 없습니다.</div>`;
+    el("updateMemoList").innerHTML = (list||[]).map(item=>`<div class="update-item"><div class="update-title">${escapeHtml(item.title || "(제목 없음)")}<span class="update-status">${escapeHtml(item.status||"")}</span></div><div class="entry-date">${escapeHtml(formatDateWithDay(item.date||""))} ${escapeHtml(item.time||"")}</div><div class="update-content">${escapeHtml(item.content||"")}</div><div class="comment-actions"><button class="tiny-btn" onclick="editUpdateMemoNow('${escapeJs(item.id)}')">수정</button><button class="tiny-btn" onclick="changeUpdateMemoStatus('${escapeJs(item.id)}','예정')">예정</button><button class="tiny-btn" onclick="changeUpdateMemoStatus('${escapeJs(item.id)}','진행중')">진행</button><button class="tiny-btn" onclick="changeUpdateMemoStatus('${escapeJs(item.id)}','완료')">완료</button><button class="tiny-btn red" onclick="deleteUpdateMemoNow('${escapeJs(item.id)}')">삭제</button></div></div>`).join("") || `<div class="empty">아직 적어둔 업데이트 메모가 없습니다.</div>`;
   }
-  async function saveUpdateMemoFast(){
-    const data={id:createLocalId("UPDATEMEMO"),date:todayValue(),time:timeValue(),status:value("updateMemoStatus"),title:value("updateMemoTitle"),content:value("updateMemoContent"),createdAt:nowStamp(),updatedAt:nowStamp()};
-    if(!data.title && !data.content){ toast("업데이트 메모를 입력해주세요."); return; }
-    el("updateMemoTitle").value=""; el("updateMemoContent").value=""; el("updateMemoStatus").value="예정";
-    await setDoc(doc(db,C.updateMemos,data.id),data); toast("업데이트 메모가 저장되었습니다.");
+
+  function bindUpdateMemoAutosave(){
+    ["updateMemoStatus","updateMemoTitle","updateMemoContent"].forEach(id=>{
+      const node = el(id);
+      if (!node) return;
+      node.addEventListener(id === "updateMemoStatus" ? "change" : "input", autoSaveUpdateMemoDraft);
+    });
   }
+
+  function openUpdateMemoEditor(fresh=false){
+    el("updateMemoEditorPanel").classList.add("open");
+    if (fresh || !value("updateMemoEditId")) startNewUpdateMemo(false);
+    setTimeout(()=>el("updateMemoContent").focus(), 80);
+  }
+  function closeUpdateMemoEditor(){ el("updateMemoEditorPanel").classList.remove("open"); }
+  function startNewUpdateMemo(focus=true){
+    clearTimeout(updateMemoAutosaveTimer);
+    el("updateMemoEditId").value = createLocalId("UPDATEMEMO");
+    el("updateMemoStatus").value = "예정";
+    el("updateMemoTitle").value = "";
+    el("updateMemoContent").value = "";
+    updateMemoLastSavedKey = "";
+    el("updateMemoSaveState").textContent = "새 메모를 입력하면 자동 저장됩니다.";
+    el("updateMemoEditorPanel").classList.add("open");
+    if (focus) setTimeout(()=>el("updateMemoContent").focus(), 80);
+  }
+  function editUpdateMemoNow(id){
+    const item = updateMemos.find(x=>x.id===id);
+    if (!item) return;
+    el("updateMemoEditId").value = item.id;
+    el("updateMemoStatus").value = item.status || "예정";
+    el("updateMemoTitle").value = item.title || "";
+    el("updateMemoContent").value = item.content || "";
+    updateMemoLastSavedKey = JSON.stringify({status:item.status||"예정",title:item.title||"",content:item.content||""});
+    el("updateMemoSaveState").textContent = "수정 내용을 입력하면 자동 저장됩니다.";
+    el("updateMemoEditorPanel").classList.add("open");
+    setTimeout(()=>el("updateMemoContent").focus(), 80);
+  }
+  function autoSaveUpdateMemoDraft(){
+    clearTimeout(updateMemoAutosaveTimer);
+    el("updateMemoSaveState").textContent = "저장 준비 중...";
+    updateMemoAutosaveTimer = setTimeout(saveUpdateMemoDraftNow, 550);
+  }
+  async function saveUpdateMemoDraftNow(){
+    const id = value("updateMemoEditId") || createLocalId("UPDATEMEMO");
+    el("updateMemoEditId").value = id;
+    const status = value("updateMemoStatus") || "예정";
+    const title = value("updateMemoTitle");
+    const content = value("updateMemoContent");
+    const key = JSON.stringify({status,title,content});
+    if (!title && !content){
+      el("updateMemoSaveState").textContent = "내용을 입력하면 자동 저장됩니다.";
+      return;
+    }
+    if (key === updateMemoLastSavedKey){
+      el("updateMemoSaveState").textContent = "이미 저장됨";
+      return;
+    }
+    const old = updateMemos.find(x=>x.id===id) || {};
+    const data = { ...old, id, date: old.date || todayValue(), time: old.time || timeValue(), status, title, content, createdAt: old.createdAt || nowStamp(), updatedAt: nowStamp() };
+    try{
+      el("updateMemoSaveState").textContent = "저장 중...";
+      await setDoc(doc(db, C.updateMemos, id), data, {merge:true});
+      updateMemoLastSavedKey = key;
+      el("updateMemoSaveState").textContent = "자동 저장됨 " + timeValue();
+    }catch(err){
+      el("updateMemoSaveState").textContent = "저장 실패: " + err.message;
+    }
+  }
+  async function saveUpdateMemoFast(){ await saveUpdateMemoDraftNow(); }
   async function changeUpdateMemoStatus(id,status){ const item=updateMemos.find(x=>x.id===id); if(!item) return; await setDoc(doc(db,C.updateMemos,id), {...item,status,updatedAt:nowStamp()}, {merge:true}); }
   async function deleteUpdateMemoNow(id){ if(!confirm("업데이트 메모를 삭제할까요?")) return; await deleteDoc(doc(db,C.updateMemos,id)); toast("삭제되었습니다."); }
+
+  async function archiveUpdateMemos(){
+    if (!updateMemos.length){ toast("백업할 업데이트 메모가 없습니다."); return; }
+    if (!confirm("현재 업데이트 메모를 업데이트 내역으로 백업하고 메모 목록을 초기화할까요?")) return;
+    const content = updateMemos.map((m,i)=>`${i+1}. [${m.status||""}] ${m.title||"(제목 없음)"}\n${m.content||""}`).join("\n\n");
+    const historyId = `UPDATE-BACKUP-${APP_VERSION}-${Date.now()}`;
+    const history = {id:historyId, version:APP_VERSION, date:todayValue(), title:`${APP_VERSION} 업데이트 반영 백업`, content, createdAt:nowStamp(), source:"update-memo-archive"};
+    try{
+      const batch = writeBatch(db);
+      batch.set(doc(db, C.updateHistory, historyId), history, {merge:true});
+      updateMemos.forEach(m=>batch.delete(doc(db, C.updateMemos, m.id)));
+      await batch.commit();
+      startNewUpdateMemo(false);
+      closeUpdateMemoEditor();
+      toast("업데이트 내역으로 백업하고 메모를 초기화했습니다.");
+    }catch(err){
+      toast("업데이트 백업 실패: " + err.message);
+    }
+  }
 
   function seedInitialDataManually(){ seedInitialDataOnce(true, true); }
 
@@ -1231,7 +1382,7 @@
   function escapeHtml(text){ return String(text||"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;"); }
   function escapeJs(text){ return String(text||"").replaceAll("\\","\\\\").replaceAll("'","\\'").replaceAll("\n","\\n").replaceAll("\r",""); }
 
-  Object.assign(window,{showPage,setChoice,savePrayerFast,clearForm,loadOpenPrayers,loadToday,quickPast,loadPast,searchPrayer,resetSearch,openPartialModal,openEditPrayerModalById,changeStatus,savePrayerEdit,closeEditPrayerModal,savePartialResponseFromModal,resetPartialForm,closePartialModal,editPartialItem,deletePartialItem,saveQuestionFast,loadQuestions,openQuestionReplyModal,completeQuestionNow,editQuestionPromptById,deleteQuestionNow,closeQuestionReplyModal,resetQuestionReplyForm,saveQuestionReplyFromModal,editQuestionReplyItem,deleteQuestionReplyItem,openUpdateCenter,closeUpdateCenter,saveUpdateMemoFast,changeUpdateMemoStatus,deleteUpdateMemoNow,seedInitialDataManually,openGPT,updateDateDisplay,openDatePicker,openInfo,closeInfo,openHelp,closeHelp,closeModalByBg});
+  Object.assign(window,{showPage,moveTab,toggleUpdateCenter,toggleHelp,setChoice,savePrayerFast,clearForm,loadOpenPrayers,loadToday,quickPast,loadPast,searchPrayer,resetSearch,openPartialModal,openEditPrayerModalById,changeStatus,savePrayerEdit,closeEditPrayerModal,savePartialResponseFromModal,resetPartialForm,closePartialModal,editPartialItem,deletePartialItem,saveQuestionFast,loadQuestions,openQuestionReplyModal,completeQuestionNow,editQuestionPromptById,deleteQuestionNow,closeQuestionReplyModal,resetQuestionReplyForm,saveQuestionReplyFromModal,editQuestionReplyItem,deleteQuestionReplyItem,openUpdateCenter,closeUpdateCenter,openUpdateMemoEditor,closeUpdateMemoEditor,startNewUpdateMemo,editUpdateMemoNow,saveUpdateMemoFast,changeUpdateMemoStatus,deleteUpdateMemoNow,archiveUpdateMemos,seedInitialDataManually,openGPT,updateDateDisplay,openDatePicker,openInfo,closeInfo,openHelp,closeHelp,closeModalByBg});
 </script>
 </body>
 </html>
