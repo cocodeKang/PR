@@ -82,13 +82,6 @@
     .update-editor-panel{display:none;margin-top:10px;padding:10px;border:1px solid var(--line);border-radius:14px;background:#fffaf4}.update-editor-panel.open{display:block}
     .editor-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px}.editor-head b{color:var(--accent)}
     .autosave-state{font-size:.72rem;color:var(--sub);font-weight:900;margin-top:5px;text-align:right}
-
-    .stat{cursor:pointer;transition:transform .12s ease,box-shadow .12s ease}.stat:active{transform:scale(.98)}
-    .top-btn.sermon{background:#e0f2fe;color:#075985;box-shadow:var(--shadow)}
-    .write-layout{display:grid;gap:10px}.write-actions-top{display:grid;grid-template-columns:1fr 1fr;gap:6px}.label-action{display:flex;align-items:center;justify-content:space-between;gap:8px}.label-action label{margin-bottom:4px}.suggest-btn{width:auto;min-height:28px;border:0;border-radius:999px;background:#eef2ff;color:#3730a3;font-size:.7rem;font-weight:950;padding:5px 9px;white-space:nowrap}.category-status-panel{display:grid;gap:10px}.category-box,.status-box-inner{min-width:0}.category-add-btn{border-style:dashed;background:#fff;color:var(--accent)}.write-response-area{display:none}.entry.open-entry{position:relative}.entry-actions{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;margin-bottom:7px}.entry-actions .action-btn{width:auto;min-height:28px;padding:5px 8px;border-radius:999px;font-size:.68rem;line-height:1;box-shadow:none}.entry-status-wrap{display:flex;align-items:center;justify-content:center;flex:0 0 auto}.badge{display:inline-flex;align-items:center;justify-content:center;line-height:1.1;min-height:23px}.entry-top{align-items:center}.entry-main{min-width:0}
-    @media(min-width:900px){
-      .write-layout{grid-template-columns:minmax(260px,1fr) 150px 150px;grid-template-areas:"date actions actions" "cat cat tags" "content content content" "title title title" "importance importance importance" "response response response";align-items:start;gap:14px}.write-date-area{grid-area:date}.write-actions-top{grid-area:actions;grid-template-columns:1fr 1fr;align-self:end}.write-category-area{grid-area:cat}.write-tags-area{grid-area:tags}.write-content-area{grid-area:content}.write-title-area{grid-area:title}.write-importance-area{grid-area:importance;max-width:360px}.write-response-area{grid-area:response}.category-status-panel{grid-template-columns:1fr 260px;gap:18px;align-items:start}.status-box-inner{border-left:1px solid var(--line);padding-left:18px}.write-actions-top .btn{min-height:40px;padding:9px 12px}.open-entry{padding-right:310px}.open-entry .entry-actions{position:absolute;top:12px;right:12px;margin:0;max-width:290px;justify-content:flex-end}.open-entry .entry-actions .action-btn{font-size:.72rem;padding:6px 9px;min-height:30px}.open-entry .entry-top{padding-right:0}.entry-status-wrap{min-width:70px}.badge{min-width:54px;min-height:26px;text-align:center}.entry-content{max-width:100%}
-    }
     @media(min-width:900px){
       html{font-size:16px}body{padding-bottom:0;padding-left:112px}.header-inner{padding:13px 20px 12px}h1{font-size:1.45rem}.today-text{font-size:.86rem}main{max-width:1180px;padding:20px 24px}.card{padding:18px;margin-bottom:16px;border-radius:22px}.stats{gap:12px;margin-bottom:16px}.stat{padding:14px 4px;border-radius:18px}.stat b{font-size:1.42rem}.stat span{font-size:.78rem}.section-title h2{font-size:1.35rem}label{font-size:.9rem}.top-btn{font-size:.86rem;padding:8px 12px}.version-badge{font-size:.72rem;padding:3px 9px}.grid-2{gap:12px}.button-row{gap:10px}.button-row.four{grid-template-columns:repeat(4,1fr)}.entry{padding:16px;border-radius:18px}.entry-title{font-size:1.08rem}.entry-content{font-size:.96rem}.modal{max-width:620px}.bottom-nav{top:0;left:0;right:auto;bottom:auto;width:112px;height:100vh;border-top:0;border-right:1px solid rgba(0,0,0,.08);padding:12px 8px;background:rgba(255,255,255,.98)}.bottom-nav-inner{display:flex;flex-direction:column;gap:8px;height:100%;max-width:none}.nav-btn{min-height:76px;border-radius:18px;background:#fff;box-shadow:var(--shadow);font-size:.84rem;padding:9px 6px}.nav-btn b{font-size:1.55rem;margin-bottom:5px}.nav-btn.active{background:#efe7de;color:var(--accent);outline:2px solid rgba(124,92,59,.12)}textarea{min-height:116px}.chip-wrap,.chips{flex-wrap:wrap;overflow:visible}.mini-chip,.chip{font-size:.86rem;padding:8px 12px}
     }
@@ -101,14 +94,13 @@
   <div class="header-inner">
     <div class="title-row">
       <div>
-        <h1>기도일지 <span id="versionBadge" class="version-badge">v2.5.0</span></h1>
+        <h1>기도일지 <span id="versionBadge" class="version-badge">v2.6.0</span></h1>
         <div class="today-text" id="todayText"></div>
       </div>
       <div class="top-actions">
-        <button class="top-btn white" onclick="openUpdateCenter()" title="Ctrl+U">✍️ 업데이트</button>
-        <button class="top-btn sermon" onclick="openSermonLog()">📖 설교일지</button>
+        <button class="top-btn white" onclick="openUpdateCenter()">📦 업데이트</button>
         <button class="top-btn gpt" onclick="openGPT()" title="Ctrl+G">🤖 GPT</button>
-        <button class="top-btn" onclick="openHelp()" title="Ctrl+/">❔ 도움말</button>
+        <button class="top-btn" onclick="openHelp()">❔ 도움말</button>
       </div>
     </div>
     <div class="today-text" id="syncStatus"><span class="sync-dot"></span>Firestore 연결 준비 중</div>
@@ -129,53 +121,40 @@
       <input type="hidden" id="mode" value="간구"><input type="hidden" id="category" value="기도제목"><input type="hidden" id="status" value="기도중"><input type="hidden" id="importance" value="보통">
       <input class="hidden-date" type="date" id="entryDate" onchange="updateDateDisplay('entryDate','dateDisplay')">
 
-      <div class="write-layout">
-        <div class="write-date-area">
-          <div class="compact-row"><div class="compact-label">날짜</div><div class="date-row"><button type="button" class="date-display" id="dateDisplay" onclick="openDatePicker('entryDate')"></button><button type="button" class="date-icon" onclick="openDatePicker('entryDate')">📅</button></div></div>
-        </div>
+      <div class="compact-row"><div class="compact-label">날짜</div><div class="date-row"><button type="button" class="date-display" id="dateDisplay" onclick="openDatePicker('entryDate')"></button><button type="button" class="date-icon" onclick="openDatePicker('entryDate')">📅</button></div></div>
+      <div class="mode-note" id="modeNote">감사모드는 자동으로 완료 처리됩니다.</div>
 
-        <div class="write-actions-top">
-          <button class="btn" onclick="savePrayerFast()">저장</button>
-          <button class="btn secondary" onclick="clearForm()">입력비우기</button>
-        </div>
-
-        <div class="write-category-area">
-          <div class="category-status-panel">
-            <div class="category-box">
-              <label>카테고리</label>
-              <div class="chip-wrap" id="categoryChips"></div>
-            </div>
-            <div class="status-box-inner" id="statusBox">
-              <label>상태</label>
-              <div class="status-grid">
-                <button class="mini-chip active" data-group="status" data-value="기도중" onclick="setChoice('status','기도중')">기도중</button>
-                <button class="mini-chip" data-group="status" data-value="보류" onclick="setChoice('status','보류')">보류</button>
-                <button class="mini-chip" data-group="status" data-value="응답됨" onclick="setChoice('status','응답됨')">응답됨</button>
-                <button class="mini-chip" data-group="status" data-value="종료" onclick="setChoice('status','종료')">종료</button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="write-tags-area">
-          <label for="tags">태그</label><input id="tags" placeholder="자녀, 건강, 교회">
-        </div>
-
-        <div class="write-content-area">
-          <label for="content">내용</label><textarea id="content" placeholder="오늘의 기도와 마음을 적어보세요." oninput="scheduleTitleSuggestion()"></textarea>
-        </div>
-
-        <div class="write-title-area">
-          <div class="label-action"><label for="title">제목</label><button type="button" class="suggest-btn" onclick="applyTitleSuggestion(true)">✨ 제목추천</button></div>
-          <input id="title" placeholder="내용을 쓰면 제목을 자동 추천합니다.">
-        </div>
-
-        <div class="write-importance-area">
-          <label>중요도</label><div class="seg"><button class="active" data-group="importance" data-value="보통" onclick="setChoice('importance','보통')">보통</button><button data-group="importance" data-value="중요" onclick="setChoice('importance','중요')">중요</button></div>
-        </div>
-
-        <div id="responseFields" class="write-response-area"><label for="responseDate">응답일</label><input type="date" id="responseDate"><label for="responseContent">응답내용</label><textarea id="responseContent" placeholder="어떻게 응답되었는지 기록해보세요."></textarea></div>
+      <label>카테고리</label>
+      <div class="chip-wrap">
+        <button class="mini-chip active" data-group="category" data-value="기도제목" onclick="setChoice('category','기도제목')">기도</button>
+        <button class="mini-chip" data-group="category" data-value="감사" onclick="setChoice('category','감사')">감사</button>
+        <button class="mini-chip" data-group="category" data-value="말씀묵상" onclick="setChoice('category','말씀묵상')">말씀</button>
+        <button class="mini-chip" data-group="category" data-value="중보기도" onclick="setChoice('category','중보기도')">중보</button>
+        <button class="mini-chip" data-group="category" data-value="응답기록" onclick="setChoice('category','응답기록')">응답</button>
+        <button class="mini-chip" data-group="category" data-value="가족" onclick="setChoice('category','가족')">가족</button>
+        <button class="mini-chip" data-group="category" data-value="사역/교회" onclick="setChoice('category','사역/교회')">사역</button>
+        <button class="mini-chip" data-group="category" data-value="건강" onclick="setChoice('category','건강')">건강</button>
+        <button class="mini-chip" data-group="category" data-value="기타" onclick="setChoice('category','기타')">기타</button>
       </div>
+
+      <div id="statusBox">
+        <label>상태</label>
+        <div class="status-grid">
+          <button class="mini-chip active" data-group="status" data-value="기도중" onclick="setChoice('status','기도중')">기도중</button>
+          <button class="mini-chip" data-group="status" data-value="보류" onclick="setChoice('status','보류')">보류</button>
+          <button class="mini-chip" data-group="status" data-value="응답됨" onclick="setChoice('status','응답됨')">응답됨</button>
+          <button class="mini-chip" data-group="status" data-value="종료" onclick="setChoice('status','종료')">종료</button>
+        </div>
+      </div>
+
+      <label for="title">제목</label><input id="title" placeholder="예: 가족을 위한 기도">
+      <label for="content">내용</label><textarea id="content" placeholder="오늘의 기도와 마음을 적어보세요."></textarea>
+      <div class="grid-2">
+        <div><label for="tags">태그</label><input id="tags" placeholder="자녀, 건강, 교회"></div>
+        <div><label>중요도</label><div class="seg"><button class="active" data-group="importance" data-value="보통" onclick="setChoice('importance','보통')">보통</button><button data-group="importance" data-value="중요" onclick="setChoice('importance','중요')">중요</button></div></div>
+      </div>
+      <div id="responseFields" style="display:none"><label for="responseDate">응답일</label><input type="date" id="responseDate"><label for="responseContent">응답내용</label><textarea id="responseContent" placeholder="어떻게 응답되었는지 기록해보세요."></textarea></div>
+      <div class="button-row"><button class="btn" onclick="savePrayerFast()">저장하기</button><button class="btn secondary" onclick="clearForm()">입력 비우기</button></div>
     </div>
   </section>
 
@@ -222,9 +201,9 @@
 <div class="bottom-nav"><div class="bottom-nav-inner"><button class="nav-btn active" onclick="showPage('write')"><b>＋</b>기록</button><button class="nav-btn" onclick="showPage('open')"><b>🙏</b>기도중</button><button class="nav-btn" onclick="showPage('today')"><b>☀</b>오늘</button><button class="nav-btn" onclick="showPage('past')"><b>↩</b>과거</button><button class="nav-btn" onclick="showPage('search')"><b>⌕</b>검색</button><button class="nav-btn" onclick="showPage('questions')"><b>❔</b>질문</button></div></div>
 
 <div class="modal-bg" id="infoModal" onclick="closeModalByBg(event,'infoModal')"><div class="modal"><h3 id="infoTitle"></h3><div class="modal-text" id="infoText"></div><button class="btn secondary" style="margin-top:12px" onclick="closeInfo()">닫기</button></div></div>
-<div class="modal-bg" id="helpModal" onclick="closeModalByBg(event,'helpModal')"><div class="modal"><h3>도움말 · 단축키</h3><div class="shortcut-grid"><div class="shortcut-row"><span class="kbd">Ctrl+U</span><b>업데이트 메모장</b> 열기/닫기</div><div class="shortcut-row"><span class="kbd">Ctrl+/</span><b>도움말</b> 열기/닫기</div><div class="shortcut-row"><span class="kbd">Ctrl+G</span><b>GPT 대화방</b> 열기</div><div class="shortcut-row"><span class="kbd">Ctrl+←</span><b>왼쪽 탭</b>으로 이동</div><div class="shortcut-row"><span class="kbd">Ctrl+→</span><b>오른쪽 탭</b>으로 이동</div></div><div class="help-list" style="margin-top:10px"><div class="help-item"><b>🔥 Firestore</b> 모든 기록은 Firebase Firestore에 저장되고 실시간 동기화됩니다.</div><div class="help-item"><b>✍️ 업데이트</b> Ctrl+U를 누르면 업데이트 내용을 바로 적는 메모장이 열립니다. 입력 내용은 별도 저장 없이 자동 저장됩니다.</div><div class="help-item"><b>💾 업데이트 백업</b> 반영 완료한 메모는 버튼으로 업데이트 내역에 백업한 뒤 초기화할 수 있습니다.</div><div class="help-item"><b>💬 부분응답</b> 완료된 응답은 아니지만 기도 중 보인 작은 응답을 댓글처럼 기록합니다.</div></div><button class="btn secondary" style="margin-top:12px" onclick="closeHelp()">닫기</button></div></div>
+<div class="modal-bg" id="helpModal" onclick="closeModalByBg(event,'helpModal')"><div class="modal"><h3>도움말 · 단축키</h3><div class="shortcut-grid"><div class="shortcut-row"><span class="kbd">Ctrl+U</span><b>업데이트 메모</b> 열기/닫기</div><div class="shortcut-row"><span class="kbd">Ctrl+/</span><b>도움말</b> 열기/닫기</div><div class="shortcut-row"><span class="kbd">Ctrl+G</span><b>GPT 대화방</b> 열기</div><div class="shortcut-row"><span class="kbd">Ctrl+←</span><b>왼쪽 탭</b>으로 이동</div><div class="shortcut-row"><span class="kbd">Ctrl+→</span><b>오른쪽 탭</b>으로 이동</div></div><div class="help-list" style="margin-top:10px"><div class="help-item"><b>🔥 Firestore</b> 모든 기록은 Firebase Firestore에 저장되고 실시간 동기화됩니다.</div><div class="help-item"><b>📦 업데이트</b> 앞으로 고칠 내용은 메모 창에서 입력하면 별도 저장 없이 자동 저장됩니다.</div><div class="help-item"><b>💾 업데이트 백업</b> 반영 완료한 메모는 업데이트 내역으로 백업한 뒤 메모를 초기화할 수 있습니다.</div><div class="help-item"><b>💬 부분응답</b> 완료된 응답은 아니지만 기도 중 보인 작은 응답을 댓글처럼 기록합니다.</div></div><button class="btn secondary" style="margin-top:12px" onclick="closeHelp()">닫기</button></div></div>
 
-<div class="modal-bg" id="updateModal" onclick="closeModalByBg(event,'updateModal')"><div class="modal"><h3>✍️ 업데이트 메모</h3><input type="hidden" id="updateMemoEditId"><label for="updateMemoContent">업데이트 내용</label><textarea id="updateMemoContent" placeholder="수정할 내용, 반영할 기능, 오류 메모를 자유롭게 적어두세요. 입력하면 Firestore에 자동 저장됩니다." style="min-height:260px"></textarea><div class="autosave-state" id="updateMemoSaveState">입력하면 자동 저장됩니다.</div><div class="button-row"><button class="btn green" onclick="archiveUpdateMemos()">반영 백업 후 초기화</button><button class="btn secondary" onclick="closeUpdateCenter()">닫기</button></div></div></div>
+<div class="modal-bg" id="updateModal" onclick="closeModalByBg(event,'updateModal')"><div class="modal"><h3>📝 업데이트 메모</h3><div class="notice">Ctrl+U를 누르면 이 메모장이 바로 열립니다. 입력한 내용은 Firestore에 자동 저장됩니다.</div><div id="updateMemoEditorPanel" class="update-editor-panel open"><input type="hidden" id="updateMemoEditId"><input type="hidden" id="updateMemoStatus" value="예정"><input type="hidden" id="updateMemoTitle" value=""><label for="updateMemoContent">업데이트 내용 메모</label><textarea id="updateMemoContent" placeholder="수정할 내용, 다음에 반영할 기능, 오류 메모를 적어두세요."></textarea><div class="autosave-state" id="updateMemoSaveState">입력하면 자동 저장됩니다.</div><div class="button-row"><button class="btn green" onclick="archiveUpdateMemos()">반영 백업 후 초기화</button><button class="btn secondary" onclick="closeUpdateCenter()">닫기</button></div></div><div id="updateCurrentBox" style="display:none"></div><div id="updateMemoList" style="display:none"></div><div id="updateHistoryList" style="display:none"></div></div></div>
 
 <div class="modal-bg" id="editPrayerModal" onclick="closeModalByBg(event,'editPrayerModal')"><div class="modal"><h3>기도 수정</h3><input type="hidden" id="editPrayerId"><input class="hidden-date" type="date" id="editPrayerDate" onchange="updateDateDisplay('editPrayerDate','editPrayerDateDisplay')"><div class="compact-row"><div class="compact-label">날짜</div><div class="date-row"><button type="button" class="date-display" id="editPrayerDateDisplay" onclick="openDatePicker('editPrayerDate')"></button><button type="button" class="date-icon" onclick="openDatePicker('editPrayerDate')">📅</button></div></div><label>카테고리</label><select id="editPrayerCategory"><option value="기도제목">기도제목</option><option value="중보기도">중보기도</option><option value="가족">가족</option><option value="사역/교회">사역/교회</option><option value="건강">건강</option><option value="기타">기타</option></select><label>상태</label><select id="editPrayerStatus"><option value="기도중">기도중</option><option value="보류">보류</option><option value="응답됨">응답됨</option><option value="종료">종료</option></select><label>제목</label><input id="editPrayerTitle"><label>내용</label><textarea id="editPrayerContent"></textarea><label>태그</label><input id="editPrayerTags"><div class="button-row"><button class="btn" onclick="savePrayerEdit()">수정 저장</button><button class="btn secondary" onclick="closeEditPrayerModal()">닫기</button></div></div></div>
 
@@ -803,29 +782,17 @@
   import { getAnalytics, isSupported } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-analytics.js";
   import { getFirestore, enableIndexedDbPersistence, collection, doc, setDoc, deleteDoc, onSnapshot, getDoc, writeBatch } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
 
-  const APP_VERSION = "v2.5.0";
+  const APP_VERSION = "v2.6.0";
   const GPT_URL = "https://chatgpt.com/c/6a1252df-7308-83a7-aaff-069fd773983e";
-  const SERMON_URL = "https://cocodekang.github.io/CS/";
-  const LIVE_UPDATE_MEMO_ID = "LIVE-UPDATE-MEMO";
-  const DEFAULT_CATEGORIES = [
-    {value:"기도제목", label:"기도"},
-    {value:"감사", label:"감사"},
-    {value:"말씀묵상", label:"말씀"},
-    {value:"중보기도", label:"중보"},
-    {value:"응답기록", label:"응답"},
-    {value:"가족", label:"가족"},
-    {value:"사역/교회", label:"사역"},
-    {value:"건강", label:"건강"},
-    {value:"기타", label:"기타"}
-  ];
   const SEED_KEY = "prayer-firestore-seeded-v2";
+  const SEED_DATA = window.SEED_DATA || { prayers: [], partials: [], questions: [], questionReplies: [], updateHistory: [], updateMemos: [] };
   const CURRENT_VERSION_HISTORY = {
-    id: "VER-2-5-0",
-    version: "v2.5.0",
-    date: "2026-06-02",
-    title: "업데이트 메모·PC 기록화면·카테고리 추가 개선",
-    content: "Ctrl+U가 업데이트 센터가 아니라 업데이트 메모장만 바로 열도록 변경했습니다. PC 기록 화면을 날짜/저장버튼, 카테고리/태그, 내용, 제목 순서로 재배치하고 기도모드 줄을 제거했습니다. 카테고리 추가, 제목 자동추천, 설교일지 링크, 통계 박스 이동, 기도중 카드 버튼 정렬을 개선했습니다.",
-    createdAt: "2026-06-02 00:00:00"
+    id: "VER-2-6-0",
+    version: "v2.6.0",
+    date: "2026-06-05",
+    title: "앱 반응 오류 수정·업데이트 메모 단순화",
+    content: "초기 실행 시 모듈 스크립트에서 SEED_DATA를 직접 참조해 앱이 멈출 수 있던 문제를 수정했습니다. Ctrl+U는 업데이트 센터가 아니라 업데이트 메모장만 바로 열리도록 단순화했습니다.",
+    createdAt: "2026-05-31 00:00:00"
   };
   const firebaseConfig = {
     apiKey: "AIzaSyAVjwl6wi65R2Rmfq-a0rp5opmKbKcI0Bw",
@@ -848,8 +815,7 @@
     questions:"questions",
     qReplies:"questionReplies",
     updateHistory:"updateHistory",
-    updateMemos:"updateMemos",
-    categories:"customCategories"
+    updateMemos:"updateMemos"
   };
 
   let currentPage = "write";
@@ -859,7 +825,6 @@
   let questionReplies = [];
   let updateHistory = [...(SEED_DATA.updateHistory || [])];
   let updateMemos = [...(SEED_DATA.updateMemos || [])];
-  let customCategories = [];
   const prayerItemMap = {};
   const questionItemMap = {};
   let currentPartialPrayerId = "";
@@ -871,7 +836,6 @@
     setToday();
     el("versionBadge").textContent = APP_VERSION;
     updateSync("연결 중", "");
-    renderCategoryControls();
     bindUpdateMemoAutosave();
     startRealtime();
     setTimeout(() => seedInitialDataOnce(false, false), 1000);
@@ -903,9 +867,8 @@
     listen(C.partials, arr => { partialResponses = sortItems(arr); if (isOpen("partialModal")) renderPartialResponses(); });
     listen(C.questions, arr => { questions = sortItems(arr); renderQuestionStats(); renderActivePage(); });
     listen(C.qReplies, arr => { questionReplies = sortItems(arr); renderQuestionStats(); if (isOpen("questionReplyModal")) renderQuestionReplies(); });
-    listen(C.updateHistory, arr => { updateHistory = sortVersion(arr.length ? arr : SEED_DATA.updateHistory || []); });
-    listen(C.updateMemos, arr => { updateMemos = sortUpdateMemos(arr.length ? arr : SEED_DATA.updateMemos || []); if (isOpen("updateModal")) hydrateUpdateMemoModalFromData(); });
-    listen(C.categories, arr => { customCategories = sortCategories(arr); renderCategoryControls(); });
+    listen(C.updateHistory, arr => { updateHistory = sortVersion(arr.length ? arr : SEED_DATA.updateHistory || []); if (isOpen("updateModal")) renderUpdateCenter(); });
+    listen(C.updateMemos, arr => { updateMemos = sortUpdateMemos(arr.length ? arr : SEED_DATA.updateMemos || []); if (isOpen("updateModal")) renderUpdateCenter(); });
   }
 
   function listen(name, callback){
@@ -1019,7 +982,7 @@
       answered: prayers.filter(p => p.status === "응답됨").length,
       thanks: prayers.filter(p => p.mode === "감사" || p.category === "감사").length
     };
-    el("statsBox").innerHTML = `<div class="stat" onclick="showPage('today')"><b>${stats.today}</b><span>오늘</span></div><div class="stat" onclick="showPage('open')"><b>${stats.praying}</b><span>기도중</span></div><div class="stat" onclick="showAnsweredStats()"><b>${stats.answered}</b><span>응답됨</span></div><div class="stat" onclick="showThanksStats()"><b>${stats.thanks}</b><span>감사</span></div>`;
+    el("statsBox").innerHTML = `<div class="stat" onclick="showPage('today')"><b>${stats.today}</b><span>오늘</span></div><div class="stat" onclick="showPage('open')"><b>${stats.praying}</b><span>기도중</span></div><div class="stat"><b>${stats.answered}</b><span>응답됨</span></div><div class="stat"><b>${stats.thanks}</b><span>감사</span></div>`;
   }
 
   function renderQuestionStats(){
@@ -1029,103 +992,34 @@
       done: questions.filter(q => q.status === "완료").length,
       replies: questionReplies.length
     };
-    el("questionStatsBox").innerHTML = `<div class="stat" onclick="showQuestionStatsFilter('전체')"><b>${stats.total}</b><span>질문</span></div><div class="stat" onclick="showQuestionStatsFilter('진행중')"><b>${stats.open}</b><span>진행</span></div><div class="stat" onclick="showQuestionStatsFilter('완료')"><b>${stats.done}</b><span>완료</span></div><div class="stat" onclick="showQuestionStatsFilter('전체')"><b>${stats.replies}</b><span>답글</span></div>`;
-  }
-
-  function showAnsweredStats(){ showPage("search"); el("searchMode").value="전체"; el("searchCategory").value="전체"; el("searchStatus").value="응답됨"; el("searchKeyword").value=""; searchPrayer(); }
-  function showThanksStats(){ showPage("search"); el("searchMode").value="감사"; el("searchCategory").value="감사"; el("searchStatus").value="전체"; el("searchKeyword").value=""; searchPrayer(); }
-  function showQuestionStatsFilter(status){ showPage("questions"); el("questionFilterStatus").value=status; el("questionFilterType").value="전체"; loadQuestions(true); }
-
-  function allCategories(){
-    const map = new Map();
-    DEFAULT_CATEGORIES.forEach(c => map.set(c.value, c));
-    customCategories.forEach(c => {
-      const name = c.name || c.value || c.label;
-      if(name) map.set(name, {value:name, label:c.label || name});
-    });
-    return [...map.values()];
-  }
-  function sortCategories(arr){ return [...arr].sort((a,b)=>String(a.name||a.value||"").localeCompare(String(b.name||b.value||""), "ko")); }
-  function renderCategoryControls(){
-    const selected = value("category") || "기도제목";
-    const categories = allCategories();
-    if(el("categoryChips")){
-      el("categoryChips").innerHTML = categories.map(c=>`<button class="mini-chip ${c.value===selected ? "active" : ""}" data-group="category" data-value="${escapeHtml(c.value)}" onclick="setChoice('category','${escapeJs(c.value)}')">${escapeHtml(c.label || c.value)}</button>`).join("") + `<button class="mini-chip category-add-btn" onclick="addCategoryPrompt()">＋ 추가</button>`;
-    }
-    fillCategorySelect("pastCategory", true);
-    fillCategorySelect("searchCategory", true);
-    fillCategorySelect("editPrayerCategory", false);
-  }
-  function fillCategorySelect(id, includeAll){
-    const node = el(id); if(!node) return;
-    const current = node.value || (includeAll ? "전체" : "기도제목");
-    const opts = (includeAll ? [{value:"전체", label:"전체"}] : []).concat(allCategories());
-    node.innerHTML = opts.map(c=>`<option value="${escapeHtml(c.value)}">${escapeHtml(c.label || c.value)}</option>`).join("");
-    node.value = opts.some(c=>c.value===current) ? current : (includeAll ? "전체" : "기도제목");
-  }
-  async function addCategoryPrompt(){
-    const name = prompt("추가할 카테고리 이름을 입력하세요.", "");
-    const clean = String(name || "").trim();
-    if(!clean) return;
-    if(allCategories().some(c=>c.value===clean)){
-      setChoice("category", clean);
-      toast("이미 있는 카테고리입니다.");
-      return;
-    }
-    const id = createLocalId("CATEGORY");
-    await setDoc(doc(db, C.categories, id), {id, name:clean, label:clean, createdAt:nowStamp(), updatedAt:nowStamp()}, {merge:true});
-    setChoice("category", clean);
-    toast("카테고리가 추가되었습니다.");
-  }
-
-  let titleSuggestTimer = null;
-  function scheduleTitleSuggestion(){
-    clearTimeout(titleSuggestTimer);
-    if(value("title")) return;
-    titleSuggestTimer = setTimeout(()=>applyTitleSuggestion(false), 650);
-  }
-  function applyTitleSuggestion(force=false){
-    const suggested = suggestPrayerTitle(value("content"), value("category"));
-    if(!suggested){ toast("제목을 추천할 내용이 부족합니다."); return; }
-    if(force || !value("title")){
-      el("title").value = suggested;
-      if(force) toast("제목을 추천했습니다.");
-    }
-  }
-  function suggestPrayerTitle(text, category){
-    const raw = String(text||"").replace(/https?:\/\/\S+/g, " ").split(/\n+/).map(x=>x.trim()).filter(Boolean).join(" ");
-    if(!raw) return "";
-    const cleaned = raw.replace(/[\[\](){}<>]/g," ").replace(/\s+/g," ").trim();
-    const words = cleaned.split(" ").filter(Boolean);
-    let base = words.slice(0, 7).join(" ");
-    if(base.length > 32) base = base.slice(0, 32).replace(/\s+\S*$/, "");
-    const prefix = category === "감사" ? "감사: " : category === "응답기록" ? "응답: " : category === "중보기도" ? "중보: " : "기도: ";
-    return prefix + (base || cleaned.slice(0, 24));
+    el("questionStatsBox").innerHTML = `<div class="stat"><b>${stats.total}</b><span>질문</span></div><div class="stat"><b>${stats.open}</b><span>진행</span></div><div class="stat"><b>${stats.done}</b><span>완료</span></div><div class="stat"><b>${stats.replies}</b><span>답글</span></div>`;
   }
 
   function setChoice(group,val){
     el(group).value = val;
     document.querySelectorAll(`[data-group="${group}"]`).forEach(btn => btn.classList.toggle("active", btn.dataset.value === val));
+    if(group === "mode") handleModeChange(val);
     if(group === "category") handleCategoryChange(val);
     if(group === "status") updateResponseFields();
   }
 
   function handleModeChange(mode){
-    el("mode").value = mode === "감사" ? "감사" : "간구";
+    if(mode === "감사"){
+      el("statusBox").style.display = "none";
+      el("modeNote").style.display = "block";
+      el("status").value = "완료";
+      if(value("category") === "기도제목") setChoice("category","감사");
+    }else{
+      el("statusBox").style.display = "block";
+      el("modeNote").style.display = "none";
+      if(value("status") === "완료") setChoice("status","기도중");
+    }
     updateResponseFields();
   }
 
   function handleCategoryChange(category){
-    if(category === "감사"){
-      el("mode").value = "감사";
-      el("status").value = "완료";
-      if(el("statusBox")) el("statusBox").style.display = "none";
-    }else{
-      el("mode").value = "간구";
-      if(el("statusBox")) el("statusBox").style.display = "block";
-      if(value("status") === "완료") setChoice("status","기도중");
-      if(category === "응답기록") setChoice("status","응답됨");
-    }
+    if(category === "감사" && value("mode") !== "감사") setChoice("mode","감사");
+    if(category === "응답기록"){ if(value("mode") !== "간구") setChoice("mode","간구"); setChoice("status","응답됨"); }
     updateResponseFields();
   }
 
@@ -1154,7 +1048,7 @@
 
   function clearForm(resetDate=true){
     if(resetDate){ el("entryDate").value = todayValue(); updateDateDisplay("entryDate","dateDisplay"); }
-    el("mode").value="간구"; setChoice("category","기도제목"); setChoice("status","기도중"); setChoice("importance","보통");
+    setChoice("mode","간구"); setChoice("category","기도제목"); setChoice("status","기도중"); setChoice("importance","보통");
     ["title","content","tags","responseContent"].forEach(id => el(id).value = "");
     el("responseDate").value = todayValue();
     updateResponseFields();
@@ -1222,8 +1116,8 @@
 
   function renderEntry(item, showActions){
     const tags = item.tags ? `<div class="entry-tags"># ${escapeHtml(item.tags).replaceAll(","," #")}</div>` : "";
-    const actions = showActions ? `<div class="entry-actions"><button class="action-btn tiny-btn" onclick="openPartialModal('${escapeJs(item.id)}')">💬 부분응답 ${countPartials(item.id)}</button><button class="action-btn tiny-btn" onclick="openEditPrayerModalById('${escapeJs(item.id)}')">✏️ 수정</button><button class="action-btn tiny-btn" onclick="changeStatus('${escapeJs(item.id)}','응답됨',this)">✅ 응답완료</button><button class="action-btn tiny-btn red" onclick="changeStatus('${escapeJs(item.id)}','종료',this)">⛔ 종료</button></div>` : "";
-    return `<article class="entry ${showActions ? "open-entry" : ""}" data-id="${escapeHtml(item.id)}">${actions}<div class="entry-top"><div class="entry-main"><div class="entry-date">${escapeHtml(formatDateWithDay(item.date))} ${escapeHtml(item.time||"")}</div><div class="entry-title">${escapeHtml(item.title||"(제목 없음)")}</div></div><div class="entry-status-wrap"><span class="badge ${getBadgeClass(item.status)}">${escapeHtml(item.status||"")}</span></div></div><div class="entry-content">${escapeHtml(item.content||"")}</div><div class="entry-tags">${escapeHtml(item.mode||"")} ${item.category ? " · "+escapeHtml(item.category) : ""} ${item.importance ? " · "+escapeHtml(item.importance) : ""}</div>${tags}</article>`;
+    const actions = showActions ? `<div class="button-row four"><button class="btn blue small" onclick="openPartialModal('${escapeJs(item.id)}')">💬 부분응답 ${countPartials(item.id)}</button><button class="btn secondary small" onclick="openEditPrayerModalById('${escapeJs(item.id)}')">수정</button><button class="btn green small" onclick="changeStatus('${escapeJs(item.id)}','응답됨',this)">응답완료</button><button class="btn red small" onclick="changeStatus('${escapeJs(item.id)}','종료',this)">종료</button></div>` : "";
+    return `<article class="entry" data-id="${escapeHtml(item.id)}"><div class="entry-top"><div><div class="entry-date">${escapeHtml(formatDateWithDay(item.date))} ${escapeHtml(item.time||"")}</div><div class="entry-title">${escapeHtml(item.title||"(제목 없음)")}</div></div><span class="badge ${getBadgeClass(item.status)}">${escapeHtml(item.status||"")}</span></div><div class="entry-content">${escapeHtml(item.content||"")}</div><div class="entry-tags">${escapeHtml(item.mode||"")} ${item.category ? " · "+escapeHtml(item.category) : ""} ${item.importance ? " · "+escapeHtml(item.importance) : ""}</div>${tags}${actions}</article>`;
   }
 
   async function changeStatus(id,status,btn){
@@ -1252,12 +1146,7 @@
     const id = value("editPrayerId");
     const old = prayers.find(p=>p.id===id);
     if(!old) return;
-    const category = value("editPrayerCategory");
-    let status = value("editPrayerStatus");
-    let mode = category === "감사" ? "감사" : "간구";
-    if(category === "감사") status = "완료";
-    if(category === "응답기록") status = "응답됨";
-    const data = {...old, date:value("editPrayerDate"), mode, category, status, title:value("editPrayerTitle"), content:value("editPrayerContent"), tags:value("editPrayerTags"), updatedAt:nowStamp()};
+    const data = {...old, date:value("editPrayerDate"), category:value("editPrayerCategory"), status:value("editPrayerStatus"), title:value("editPrayerTitle"), content:value("editPrayerContent"), tags:value("editPrayerTags"), updatedAt:nowStamp()};
     if(!data.title && !data.content){ toast("제목이나 내용을 입력해주세요."); return; }
     await setDoc(doc(db,C.prayers,id),data,{merge:true});
     closeEditPrayerModal(); toast("수정되었습니다.");
@@ -1352,92 +1241,117 @@
 
   function openUpdateCenter(){
     el("updateModal").classList.add("show");
-    hydrateUpdateMemoModalFromData();
+    const latest = updateMemos && updateMemos.length ? sortUpdateMemos(updateMemos)[0] : null;
+    if (latest) editUpdateMemoNow(latest.id);
+    else startNewUpdateMemo(true);
+  }
+
+  function closeUpdateCenter(){ el("updateModal").classList.remove("show"); }
+  function renderUpdateCenter(){
+    el("updateCurrentBox").innerHTML = `<b>현재 버전</b> ${APP_VERSION}<br><span style="color:var(--sub)">GitHub index.html + Firestore 실시간 동기화 버전입니다. Ctrl+U 업데이트, Ctrl+/ 도움말, Ctrl+G GPT, Ctrl+←/→ 탭 이동을 사용할 수 있습니다.</span>`;
+    renderUpdateHistory(updateHistory); renderUpdateMemos(updateMemos);
+  }
+  function renderUpdateHistory(list){
+    el("updateHistoryList").innerHTML = (list||[]).map(item=>`<div class="update-item"><div class="update-title">${escapeHtml(item.version||"")} · ${escapeHtml(formatDateWithDay(item.date||""))}</div><div style="font-weight:950">${escapeHtml(item.title||"")}</div><div class="update-content">${escapeHtml(item.content||"")}</div></div>`).join("") || `<div class="empty">업데이트 내역이 없습니다.</div>`;
+  }
+  function renderUpdateMemos(list){
+    el("updateMemoList").innerHTML = (list||[]).map(item=>`<div class="update-item"><div class="update-title">${escapeHtml(item.title || "(제목 없음)")}<span class="update-status">${escapeHtml(item.status||"")}</span></div><div class="entry-date">${escapeHtml(formatDateWithDay(item.date||""))} ${escapeHtml(item.time||"")}</div><div class="update-content">${escapeHtml(item.content||"")}</div><div class="comment-actions"><button class="tiny-btn" onclick="editUpdateMemoNow('${escapeJs(item.id)}')">수정</button><button class="tiny-btn" onclick="changeUpdateMemoStatus('${escapeJs(item.id)}','예정')">예정</button><button class="tiny-btn" onclick="changeUpdateMemoStatus('${escapeJs(item.id)}','진행중')">진행</button><button class="tiny-btn" onclick="changeUpdateMemoStatus('${escapeJs(item.id)}','완료')">완료</button><button class="tiny-btn red" onclick="deleteUpdateMemoNow('${escapeJs(item.id)}')">삭제</button></div></div>`).join("") || `<div class="empty">아직 적어둔 업데이트 메모가 없습니다.</div>`;
+  }
+
+  function bindUpdateMemoAutosave(){
+    ["updateMemoStatus","updateMemoTitle","updateMemoContent"].forEach(id=>{
+      const node = el(id);
+      if (!node) return;
+      node.addEventListener(id === "updateMemoStatus" ? "change" : "input", autoSaveUpdateMemoDraft);
+    });
+  }
+
+  function openUpdateMemoEditor(fresh=false){
+    el("updateMemoEditorPanel").classList.add("open");
+    if (fresh || !value("updateMemoEditId")) startNewUpdateMemo(false);
     setTimeout(()=>el("updateMemoContent").focus(), 80);
   }
-  function closeUpdateCenter(){ el("updateModal").classList.remove("show"); }
-  function hydrateUpdateMemoModalFromData(){
-    const item = getLiveUpdateMemo();
-    const textarea = el("updateMemoContent");
-    const active = document.activeElement === textarea;
-    if(item && !active){
-      el("updateMemoEditId").value = item.id;
-      textarea.value = item.content || "";
-      updateMemoLastSavedKey = JSON.stringify({content:textarea.value});
-      el("updateMemoSaveState").textContent = item.updatedAt ? "마지막 저장: " + item.updatedAt : "자동 저장 준비됨";
-    }else if(!item && !active){
-      el("updateMemoEditId").value = LIVE_UPDATE_MEMO_ID;
-      textarea.value = "";
-      updateMemoLastSavedKey = "";
-      el("updateMemoSaveState").textContent = "입력하면 자동 저장됩니다.";
-    }
-  }
-  function getLiveUpdateMemo(){ return updateMemos.find(x=>x.id===LIVE_UPDATE_MEMO_ID) || updateMemos[0] || null; }
-  function bindUpdateMemoAutosave(){
-    const node = el("updateMemoContent");
-    if(node) node.addEventListener("input", autoSaveUpdateMemoDraft);
-  }
-  function openUpdateMemoEditor(){ openUpdateCenter(); }
-  function closeUpdateMemoEditor(){ closeUpdateCenter(); }
+  function closeUpdateMemoEditor(){ el("updateMemoEditorPanel").classList.remove("open"); }
   function startNewUpdateMemo(focus=true){
     clearTimeout(updateMemoAutosaveTimer);
-    el("updateMemoEditId").value = LIVE_UPDATE_MEMO_ID;
+    el("updateMemoEditId").value = createLocalId("UPDATEMEMO");
+    el("updateMemoStatus").value = "예정";
+    el("updateMemoTitle").value = "";
     el("updateMemoContent").value = "";
     updateMemoLastSavedKey = "";
     el("updateMemoSaveState").textContent = "새 메모를 입력하면 자동 저장됩니다.";
-    if(focus) setTimeout(()=>el("updateMemoContent").focus(), 80);
+    el("updateMemoEditorPanel").classList.add("open");
+    if (focus) setTimeout(()=>el("updateMemoContent").focus(), 80);
   }
-  function editUpdateMemoNow(){ openUpdateCenter(); }
+  function editUpdateMemoNow(id){
+    const item = updateMemos.find(x=>x.id===id);
+    if (!item) return;
+    el("updateMemoEditId").value = item.id;
+    el("updateMemoStatus").value = item.status || "예정";
+    el("updateMemoTitle").value = item.title || "";
+    el("updateMemoContent").value = item.content || "";
+    updateMemoLastSavedKey = JSON.stringify({status:item.status||"예정",title:item.title||"",content:item.content||""});
+    el("updateMemoSaveState").textContent = "수정 내용을 입력하면 자동 저장됩니다.";
+    el("updateMemoEditorPanel").classList.add("open");
+    setTimeout(()=>el("updateMemoContent").focus(), 80);
+  }
   function autoSaveUpdateMemoDraft(){
     clearTimeout(updateMemoAutosaveTimer);
     el("updateMemoSaveState").textContent = "저장 준비 중...";
-    updateMemoAutosaveTimer = setTimeout(saveUpdateMemoDraftNow, 450);
+    updateMemoAutosaveTimer = setTimeout(saveUpdateMemoDraftNow, 550);
   }
   async function saveUpdateMemoDraftNow(){
-    const id = value("updateMemoEditId") || LIVE_UPDATE_MEMO_ID;
+    const id = value("updateMemoEditId") || createLocalId("UPDATEMEMO");
     el("updateMemoEditId").value = id;
+    const status = value("updateMemoStatus") || "예정";
+    const title = value("updateMemoTitle");
     const content = value("updateMemoContent");
-    const key = JSON.stringify({content});
-    if(key === updateMemoLastSavedKey){ el("updateMemoSaveState").textContent = "이미 저장됨"; return; }
+    const key = JSON.stringify({status,title,content});
+    if (!title && !content){
+      el("updateMemoSaveState").textContent = "내용을 입력하면 자동 저장됩니다.";
+      return;
+    }
+    if (key === updateMemoLastSavedKey){
+      el("updateMemoSaveState").textContent = "이미 저장됨";
+      return;
+    }
     const old = updateMemos.find(x=>x.id===id) || {};
-    const data = { ...old, id, date: old.date || todayValue(), time: old.time || timeValue(), status:"진행중", title:"", content, createdAt: old.createdAt || nowStamp(), updatedAt: nowStamp() };
+    const data = { ...old, id, date: old.date || todayValue(), time: old.time || timeValue(), status, title, content, createdAt: old.createdAt || nowStamp(), updatedAt: nowStamp() };
     try{
       el("updateMemoSaveState").textContent = "저장 중...";
       await setDoc(doc(db, C.updateMemos, id), data, {merge:true});
       updateMemoLastSavedKey = key;
       el("updateMemoSaveState").textContent = "자동 저장됨 " + timeValue();
-    }catch(err){ el("updateMemoSaveState").textContent = "저장 실패: " + err.message; }
+    }catch(err){
+      el("updateMemoSaveState").textContent = "저장 실패: " + err.message;
+    }
   }
   async function saveUpdateMemoFast(){ await saveUpdateMemoDraftNow(); }
-  async function changeUpdateMemoStatus(){ await saveUpdateMemoDraftNow(); }
-  async function deleteUpdateMemoNow(id){ if(id) await deleteDoc(doc(db,C.updateMemos,id)); }
-  async function archiveUpdateMemos(){
-    await saveUpdateMemoDraftNow();
-    const currentContent = value("updateMemoContent");
-    const mergedContent = currentContent || updateMemos.map(m=>m.content||"").filter(Boolean).join("
+  async function changeUpdateMemoStatus(id,status){ const item=updateMemos.find(x=>x.id===id); if(!item) return; await setDoc(doc(db,C.updateMemos,id), {...item,status,updatedAt:nowStamp()}, {merge:true}); }
+  async function deleteUpdateMemoNow(id){ if(!confirm("업데이트 메모를 삭제할까요?")) return; await deleteDoc(doc(db,C.updateMemos,id)); toast("삭제되었습니다."); }
 
-");
-    if(!mergedContent.trim()){ toast("백업할 업데이트 메모가 없습니다."); return; }
-    if(!confirm("현재 업데이트 메모를 업데이트 내역으로 백업하고 메모를 초기화할까요?")) return;
+  async function archiveUpdateMemos(){
+    if (!updateMemos.length){ toast("백업할 업데이트 메모가 없습니다."); return; }
+    if (!confirm("현재 업데이트 메모를 업데이트 내역으로 백업하고 메모 목록을 초기화할까요?")) return;
+    const content = updateMemos.map((m,i)=>`${i+1}. ${m.content||""}`).join("\n\n");
     const historyId = `UPDATE-BACKUP-${APP_VERSION}-${Date.now()}`;
-    const history = {id:historyId, version:APP_VERSION, date:todayValue(), title:`${APP_VERSION} 업데이트 반영 백업`, content:mergedContent, createdAt:nowStamp(), source:"update-memo-archive"};
+    const history = {id:historyId, version:APP_VERSION, date:todayValue(), title:`${APP_VERSION} 업데이트 반영 백업`, content, createdAt:nowStamp(), source:"update-memo-archive"};
     try{
       const batch = writeBatch(db);
       batch.set(doc(db, C.updateHistory, historyId), history, {merge:true});
       updateMemos.forEach(m=>batch.delete(doc(db, C.updateMemos, m.id)));
       await batch.commit();
       startNewUpdateMemo(false);
+      closeUpdateMemoEditor();
       toast("업데이트 내역으로 백업하고 메모를 초기화했습니다.");
-    }catch(err){ toast("업데이트 백업 실패: " + err.message); }
+    }catch(err){
+      toast("업데이트 백업 실패: " + err.message);
+    }
   }
-  function renderUpdateCenter(){}
-  function renderUpdateHistory(){}
-  function renderUpdateMemos(){}
 
   function seedInitialDataManually(){ seedInitialDataOnce(true, true); }
 
   function openGPT(){ window.open(GPT_URL, "_blank", "noopener,noreferrer"); }
-  function openSermonLog(){ window.location.href = SERMON_URL; }
   function updateDateDisplay(inputId,displayId){ const date=value(inputId); el(displayId).textContent = date ? formatDateWithDay(date) : "날짜 선택"; }
   function openDatePicker(inputId){ const input=el(inputId); if(input.showPicker) input.showPicker(); else { input.focus(); input.click(); } }
   function openInfo(title,text){ el("infoTitle").textContent=title; el("infoText").textContent=text; el("infoModal").classList.add("show"); }
@@ -1471,7 +1385,7 @@
   function escapeHtml(text){ return String(text||"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;"); }
   function escapeJs(text){ return String(text||"").replaceAll("\\","\\\\").replaceAll("'","\\'").replaceAll("\n","\\n").replaceAll("\r",""); }
 
-  Object.assign(window,{showPage,moveTab,toggleUpdateCenter,toggleHelp,setChoice,savePrayerFast,clearForm,loadOpenPrayers,loadToday,quickPast,loadPast,searchPrayer,resetSearch,openPartialModal,openEditPrayerModalById,changeStatus,savePrayerEdit,closeEditPrayerModal,savePartialResponseFromModal,resetPartialForm,closePartialModal,editPartialItem,deletePartialItem,saveQuestionFast,loadQuestions,openQuestionReplyModal,completeQuestionNow,editQuestionPromptById,deleteQuestionNow,closeQuestionReplyModal,resetQuestionReplyForm,saveQuestionReplyFromModal,editQuestionReplyItem,deleteQuestionReplyItem,openUpdateCenter,closeUpdateCenter,openUpdateMemoEditor,closeUpdateMemoEditor,startNewUpdateMemo,editUpdateMemoNow,saveUpdateMemoFast,changeUpdateMemoStatus,deleteUpdateMemoNow,archiveUpdateMemos,seedInitialDataManually,openGPT,openSermonLog,addCategoryPrompt,applyTitleSuggestion,scheduleTitleSuggestion,showAnsweredStats,showThanksStats,showQuestionStatsFilter,updateDateDisplay,openDatePicker,openInfo,closeInfo,openHelp,closeHelp,closeModalByBg});
+  Object.assign(window,{showPage,moveTab,toggleUpdateCenter,toggleHelp,setChoice,savePrayerFast,clearForm,loadOpenPrayers,loadToday,quickPast,loadPast,searchPrayer,resetSearch,openPartialModal,openEditPrayerModalById,changeStatus,savePrayerEdit,closeEditPrayerModal,savePartialResponseFromModal,resetPartialForm,closePartialModal,editPartialItem,deletePartialItem,saveQuestionFast,loadQuestions,openQuestionReplyModal,completeQuestionNow,editQuestionPromptById,deleteQuestionNow,closeQuestionReplyModal,resetQuestionReplyForm,saveQuestionReplyFromModal,editQuestionReplyItem,deleteQuestionReplyItem,openUpdateCenter,closeUpdateCenter,openUpdateMemoEditor,closeUpdateMemoEditor,startNewUpdateMemo,editUpdateMemoNow,saveUpdateMemoFast,changeUpdateMemoStatus,deleteUpdateMemoNow,archiveUpdateMemos,seedInitialDataManually,openGPT,updateDateDisplay,openDatePicker,openInfo,closeInfo,openHelp,closeHelp,closeModalByBg});
 </script>
 </body>
 </html>
